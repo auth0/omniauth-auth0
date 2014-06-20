@@ -3,15 +3,15 @@ $:.push File.expand_path("../lib", __FILE__)
 require "auth0/version"
 
 Gem::Specification.new do |s|
-  s.name        = "auth0"
+  s.name        = "omniauth-auth0"
   s.version     = Auth0::VERSION
   s.authors     = ["Auth0", "Ezequiel Morito", "Jose Romaniello"]
   s.email       = ["support@auth0.com"]
-  s.homepage    = "https://github.com/auth0/ruby-auth0"
-  s.summary     = %q{Ruby client library for the Auth0 platform.}
-  s.description = %q{Ruby client library for the Auth0 platform.}
+  s.homepage    = "https://github.com/auth0/omniauth-auth0"
+  s.summary     = %q{Omniauth OAuth2 strategy for the Auth0 platform.}
+  s.description = %q{Omniauth OAuth2 strategy for the Auth0 platform.}
 
-  s.rubyforge_project = "auth0"
+  s.rubyforge_project = "omniauth-auth0"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

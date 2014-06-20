@@ -2,6 +2,16 @@
 
 This is the official OmniAuth strategy for authenticating to [Auth0](https://auth0.com).
 
+## Installing
+
+Add to your `Gemfile`:
+
+```ruby
+gem 'omniauth-auth0'
+```
+
+Then `bundle install`.
+
 ## Basic Usage
 
 ### Rails
