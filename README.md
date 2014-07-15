@@ -20,7 +20,7 @@ Then `bundle install`.
 Rails.application.config.middleware.use OmniAuth::Builder do
   provider :auth0, ENV['CLIENT_ID'], ENV['CLIENT_SECRET'], ENV['YOUR_NAMESPACE']
 end
-```ruby
+```
 
 ### Sinatra
 
