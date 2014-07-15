@@ -32,6 +32,18 @@ module OmniAuth
         end
       end
 
+      credentials do
+        hash = {'token' => access_token.token}
+        # hash.merge!('refresh_token' => access_token.refresh_token) if access_token.expires? && access_token.refresh_token
+        # hash.merge!('expires_at' => access_token.expires_at) if access_token.expires?
+        hash.merge!('expires' => true)
+        if access_token.params
+          hash.merge!('id_token' => access_token.params['id_token'])
+          hash.merge!('token_type' => access_token.params['token_type'])
+        end
+        hash
+      end
+
       uid { raw_info["user_id"] }
 
       extra do
