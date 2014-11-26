@@ -100,6 +100,6 @@ You can change to use In-Memory store for development as follows:
 
 For more information about [auth0](http://auth0.com) contact our [documentation page](http://docs.auth0.com/).
 
-## License
+## Issue Reporting
 
-MIT 2013 - AUTH0 INC.
+If you have found a bug or if you have a feature request, please report them at this repository issues section. Please do not report security vulnerabilities on the public GitHub issue tracker. The [Responsible Disclosure Program](https://auth0.com/whitehat) details the procedure for disclosing security issues.
