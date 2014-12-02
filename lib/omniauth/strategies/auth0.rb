@@ -11,12 +11,14 @@ module OmniAuth
       option :name, "auth0"
       option :namespace, nil
       option :provider_ignores_state, true
+      option :connection
 
-      args [:client_id, :client_secret, :namespace, :provider_ignores_state]
+      args [:client_id, :client_secret, :namespace, :provider_ignores_state, :connection]
 
       def initialize(app, *args, &block)
         super
         @options.provider_ignores_state = args[3] unless args[3].nil?
+        @options.connection = args[4] unless args[4].nil?
 
         @options.client_options.site          = "https://#{options[:namespace]}"
         @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize"
@@ -28,6 +30,9 @@ module OmniAuth
         super.tap do |param|
           PASSTHROUGHS.each do |p|
             param[p.to_sym] = request.params[p] if request.params[p]
+          end
+          if @options.connection
+            param[:connection] = @options.connection
           end
         end
       end
