@@ -17,6 +17,8 @@ module OmniAuth
 
       def initialize(app, *args, &block)
         super
+        fail(ArgumentError.new("Received wrong number of arguments. #{args.inspect}")) if @options[:namespace].nil?
+
         @options.provider_ignores_state = args[3] unless args[3].nil?
         @options.connection = args[4] unless args[4].nil?
 

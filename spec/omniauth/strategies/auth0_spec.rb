@@ -43,6 +43,12 @@ describe OmniAuth::Strategies::Auth0 do
       subject.options.client_options.token_url.
         should == "https://tenny.auth0.com:3000/oauth/token"
     end
+
+    it "should raise an ArgumentError error if no namespace passed" do
+      expect {
+        OmniAuth::Strategies::Auth0.new(app, "client_id", "client_secret")
+       }.to raise_error(ArgumentError)
+    end
   end
 
   context "request phase" do
