@@ -7,3 +7,4 @@ RSpec::Core::RakeTask.new
 
 desc 'Run specs'
 task :default => :spec
+task :test => :spec
