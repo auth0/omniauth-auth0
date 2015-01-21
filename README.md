@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/auth0/omniauth-auth0.svg)](https://travis-ci.org/auth0/omniauth-auth0)
+
 # OmniAuth Auth0
 
 This is the official OmniAuth strategy for authenticating to [Auth0](https://auth0.com).
