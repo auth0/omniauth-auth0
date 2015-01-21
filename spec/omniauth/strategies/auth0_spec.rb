@@ -22,7 +22,7 @@ describe OmniAuth::Strategies::Auth0 do
   end
 
   subject do
-    OmniAuth::Strategies::Auth0.new(app, 
+    OmniAuth::Strategies::Auth0.new(app,
         "client_id", "client_secret", "tenny.auth0.com:3000").tap do |strategy|
       strategy.stub(:request) { @request }
     end
@@ -53,7 +53,7 @@ describe OmniAuth::Strategies::Auth0 do
     end
 
     it "authorize params" do
-      subject.stub(:request) { double('Request', {:params => { 
+      subject.stub(:request) { double('Request', {:params => {
         "connection" => "google-oauth2", "redirect_uri" => "redirect_uri" }, :env => {}}) }
       subject.authorize_params.include?("connection").should == true
       subject.authorize_params.include?("state").should == true
@@ -128,17 +128,18 @@ describe OmniAuth::Strategies::Auth0 do
         @access_token.stub(:expires?)
         @access_token.stub(:expires_at)
         @access_token.stub(:refresh_token)
+        @access_token.stub(:params)
         subject.stub(:access_token) { @access_token }
       end
 
       it 'returns a Hash' do
         subject.credentials.should be_a(Hash)
       end
-      
+
       it 'returns the token' do
-        @access_token.stub(:token) { 
+        @access_token.stub(:token) {
           {
-            :access_token => "OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI", 
+            :access_token => "OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI",
             :token_type => "bearer"
           } }
         subject.credentials['token'][:access_token].should eq('OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI')
