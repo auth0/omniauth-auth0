@@ -21,10 +21,10 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'omniauth-oauth2', '~> 1.1'
 
   s.add_development_dependency 'rspec', '~> 2.7'
-  s.add_development_dependency 'rack-test'
-  s.add_development_dependency 'simplecov'
-  s.add_development_dependency 'webmock'
-  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rack-test', '~> 0.6.3'
+  s.add_development_dependency 'simplecov', '~> 0.9.1'
+  s.add_development_dependency 'webmock', '~> 1.20.4'
+  s.add_development_dependency 'rake', '~> 10.3.2'
 
   s.license = 'MIT'
 end
