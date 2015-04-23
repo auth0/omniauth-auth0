@@ -36,7 +36,7 @@ end
 
 ### Login widget
 
-Integrate the widget in one of your pages as described [here](http://docs.auth0.com/widget) or use links as described in the same link.
+Integrate the widget in one of your pages as described [here](http://auth0.com/docs/lock) or use links as described in the same link.
 
 ### Auth Hash
 
