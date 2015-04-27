@@ -24,7 +24,7 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 ```
 
-If you want to force to force an identity provider you can simply redirect to Omniauth path like this:
+If you want to force an identity provider you can simply redirect to the Omniauth path like this:
 
 ```ruby
 redirect_to '/auth/auth0?connection=CONNECTION_NAME'
