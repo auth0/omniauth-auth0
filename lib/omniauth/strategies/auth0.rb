@@ -1,4 +1,4 @@
-require "uri"
+require "base64"
 require "omniauth-oauth2"
 
 module OmniAuth
@@ -74,7 +74,8 @@ module OmniAuth
 
       private
       def client_info_querystring
-        "auth0-client=" + URI::encode("omniauth-auth0/#{::Auth0::VERSION}")
+        client_info = JSON.dump({name: 'omniauth-auth0', version: ::Auth0::VERSION})
+        "auth0Client=" + Base64.urlsafe_encode64(client_info)
       end
     end
   end

@@ -29,23 +29,28 @@ describe OmniAuth::Strategies::Auth0 do
   end
 
   context "initiation" do
+    let(:base64_token) {
+      Base64.urlsafe_encode64('{"name":"omniauth-auth0","version":"'+Auth0::VERSION+'"}')
+    }
+
     it "uses the correct site" do
       expect(subject.options.client_options.site).to eql "https://tenny.auth0.com:3000"
     end
 
     it "uses the correct authorize_url" do
       expect(subject.options.client_options.authorize_url).
-        to eql "https://tenny.auth0.com:3000/authorize?auth0-client=omniauth-auth0/#{Auth0::VERSION}"
+        to eql "https://tenny.auth0.com:3000/authorize?auth0Client=#{base64_token}"
+
     end
 
     it "uses the correct token_url" do
       expect(subject.options.client_options.token_url).
-        to eql "https://tenny.auth0.com:3000/oauth/token?auth0-client=omniauth-auth0/#{Auth0::VERSION}"
+        to eql "https://tenny.auth0.com:3000/oauth/token?auth0Client=#{base64_token}"
     end
 
     it "uses the correct userinfo url" do
       expect(subject.options.client_options.userinfo_url).
-        to eql "https://tenny.auth0.com:3000/userinfo?auth0-client=omniauth-auth0/#{Auth0::VERSION}"
+        to eql "https://tenny.auth0.com:3000/userinfo?auth0Client=#{base64_token}"
     end
 
     it "should raise an ArgumentError error if no namespace passed" do
