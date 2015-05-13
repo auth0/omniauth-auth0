@@ -9,12 +9,12 @@ describe OmniAuth::Strategies::Auth0 do
   before :each do
     OmniAuth.config.test_mode = true
     @request = double('Request')
-    @request.stub(:params) { {} }
-    @request.stub(:cookies) { {} }
-    @request.stub(:env) { {} }
+    allow(@request).to receive(:params)
+    allow(@request).to receive(:cookies)
+    allow(@request).to receive(:env)
 
     @session = double('Session')
-    @session.stub(:delete).with('omniauth.state').and_return('state')
+    allow(@session).to receive(:delete).with('omniauth.state').and_return('state')
   end
 
   after do
@@ -24,14 +24,13 @@ describe OmniAuth::Strategies::Auth0 do
   subject do
     OmniAuth::Strategies::Auth0.new(app,
         "client_id", "client_secret", "tenny.auth0.com:3000").tap do |strategy|
-      strategy.stub(:request) { @request }
+      allow(strategy).to receive(:request) { @request }
     end
   end
 
   context "initiation" do
     it "uses the correct site" do
-      subject.options.client_options.site.
-        should == "https://tenny.auth0.com:3000"
+      expect(subject.options.client_options.site).to eql "https://tenny.auth0.com:3000"
     end
 
     it "uses the correct authorize_url" do
@@ -64,11 +63,11 @@ describe OmniAuth::Strategies::Auth0 do
     end
 
     it "authorize params" do
-      subject.stub(:request) { double('Request', {:params => {
+      allow(subject).to receive(:request) { double('Request', {:params => {
         "connection" => "google-oauth2", "redirect_uri" => "redirect_uri" }, :env => {}}) }
-      subject.authorize_params.include?("connection").should == true
-      subject.authorize_params.include?("state").should == true
-      subject.authorize_params.include?("redirect_uri").should == true
+      expect(subject.authorize_params).to include("connection")
+      expect(subject.authorize_params).to include("state")
+      expect(subject.authorize_params).to include("redirect_uri")
     end
   end
 
@@ -95,66 +94,68 @@ describe OmniAuth::Strategies::Auth0 do
         "picture" => "pic",
         "user_id" => "google-oauth2|102835921788417079450"
       }
-      subject.stub(:raw_info) { @raw_info }
+      allow(subject).to receive(:raw_info) { @raw_info }
     end
 
     context "info" do
       it 'returns the uid (required)' do
-        subject.uid.should eq('google-oauth2|102835921788417079450')
+        expect(subject.uid).to eq('google-oauth2|102835921788417079450')
       end
 
       it 'returns the name (required)' do
-        subject.info[:name].should eq('FirstName LastName')
+        expect(subject.info[:name]).to eq('FirstName LastName')
       end
 
       it 'returns the email' do
-        subject.info[:email].should eq('user@mail.com')
+        expect(subject.info[:email]).to eq('user@mail.com')
       end
 
       it 'returns the nickname' do
-        subject.info[:nickname].should eq('nick')
+        expect(subject.info[:nickname]).to eq('nick')
       end
 
       it 'returns the last name' do
-        subject.info[:last_name].should eq('LastName')
+        expect(subject.info[:last_name]).to eq('LastName')
       end
 
       it 'returns the first name' do
-        subject.info[:first_name].should eq('FirstName')
+        expect(subject.info[:first_name]).to eq('FirstName')
       end
 
       it 'returns the location' do
-        subject.info[:location].should eq('en')
+        expect(subject.info[:location]).to eq('en')
       end
 
       it 'returns the image' do
-        subject.info[:image].should eq('pic')
+        expect(subject.info[:image]).to eq('pic')
       end
     end
 
     context "get token" do
       before :each do
         @access_token = double('OAuth2::AccessToken')
-        @access_token.stub(:token)
-        @access_token.stub(:expires?)
-        @access_token.stub(:expires_at)
-        @access_token.stub(:refresh_token)
-        @access_token.stub(:params)
-        subject.stub(:access_token) { @access_token }
+
+        allow(@access_token).to receive(:token)
+        allow(@access_token).to receive(:expires?)
+        allow(@access_token).to receive(:expires_at)
+        allow(@access_token).to receive(:refresh_token)
+        allow(@access_token).to receive(:params)
+
+        allow(subject).to receive(:access_token) { @access_token }
       end
 
       it 'returns a Hash' do
-        subject.credentials.should be_a(Hash)
+        expect(subject.credentials).to be_a(Hash)
       end
 
       it 'returns the token' do
-        @access_token.stub(:token) {
+        allow(@access_token).to receive(:token) {
           {
             :access_token => "OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI",
             :token_type => "bearer"
           } }
-        subject.credentials['token'][:access_token].should eq('OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI')
-        subject.credentials['token'][:token_type].should eq('bearer')
+        expect(subject.credentials['token'][:access_token]).to eq('OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI')
+        expect(subject.credentials['token'][:token_type]).to eq('bearer')
       end
     end
   end
