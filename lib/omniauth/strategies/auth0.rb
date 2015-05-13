@@ -1,3 +1,4 @@
+require "uri"
 require "omniauth-oauth2"
 
 module OmniAuth
@@ -23,9 +24,9 @@ module OmniAuth
         @options.connection = args[4] unless args[4].nil?
 
         @options.client_options.site          = "https://#{options[:namespace]}"
-        @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize"
-        @options.client_options.token_url     = "https://#{options[:namespace]}/oauth/token"
-        @options.client_options.userinfo_url  = "https://#{options[:namespace]}/userinfo"
+        @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize?#{client_info_querystring}"
+        @options.client_options.token_url     = "https://#{options[:namespace]}/oauth/token?#{client_info_querystring}"
+        @options.client_options.userinfo_url  = "https://#{options[:namespace]}/userinfo?#{client_info_querystring}"
       end
 
       def authorize_params
@@ -69,6 +70,11 @@ module OmniAuth
 
       def raw_info
         @raw_info ||= access_token.get(options.client_options.userinfo_url).parsed
+      end
+
+      private
+      def client_info_querystring
+        "auth0-client=" + URI::encode("omniauth-auth0/#{::Auth0::VERSION}")
       end
     end
   end

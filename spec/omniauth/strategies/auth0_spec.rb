@@ -35,13 +35,18 @@ describe OmniAuth::Strategies::Auth0 do
     end
 
     it "uses the correct authorize_url" do
-      subject.options.client_options.authorize_url.
-        should == "https://tenny.auth0.com:3000/authorize"
+      expect(subject.options.client_options.authorize_url).
+        to eql "https://tenny.auth0.com:3000/authorize?auth0-client=omniauth-auth0/#{Auth0::VERSION}"
     end
 
     it "uses the correct token_url" do
-      subject.options.client_options.token_url.
-        should == "https://tenny.auth0.com:3000/oauth/token"
+      expect(subject.options.client_options.token_url).
+        to eql "https://tenny.auth0.com:3000/oauth/token?auth0-client=omniauth-auth0/#{Auth0::VERSION}"
+    end
+
+    it "uses the correct userinfo url" do
+      expect(subject.options.client_options.userinfo_url).
+        to eql "https://tenny.auth0.com:3000/userinfo?auth0-client=omniauth-auth0/#{Auth0::VERSION}"
     end
 
     it "should raise an ArgumentError error if no namespace passed" do
