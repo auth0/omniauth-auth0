@@ -26,7 +26,7 @@ module OmniAuth
         @options.client_options.site          = "https://#{options[:namespace]}"
         @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize?#{client_info_querystring}"
         @options.client_options.token_url     = "https://#{options[:namespace]}/oauth/token?#{client_info_querystring}"
-        @options.client_options.userinfo_url  = "https://#{options[:namespace]}/userinfo?#{client_info_querystring}"
+        @options.client_options.userinfo_url  = "https://#{options[:namespace]}/userinfo"
       end
 
       def authorize_params

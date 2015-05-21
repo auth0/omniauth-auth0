@@ -50,7 +50,7 @@ describe OmniAuth::Strategies::Auth0 do
 
     it "uses the correct userinfo url" do
       expect(subject.options.client_options.userinfo_url).
-        to eql "https://tenny.auth0.com:3000/userinfo?auth0Client=#{base64_token}"
+        to eql "https://tenny.auth0.com:3000/userinfo"
     end
 
     it "should raise an ArgumentError error if no namespace passed" do
