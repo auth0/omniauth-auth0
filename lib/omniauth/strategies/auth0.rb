@@ -1,3 +1,4 @@
+require "base64"
 require "omniauth-oauth2"
 
 module OmniAuth
@@ -23,8 +24,8 @@ module OmniAuth
         @options.connection = args[4] unless args[4].nil?
 
         @options.client_options.site          = "https://#{options[:namespace]}"
-        @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize"
-        @options.client_options.token_url     = "https://#{options[:namespace]}/oauth/token"
+        @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize?#{client_info_querystring}"
+        @options.client_options.token_url     = "https://#{options[:namespace]}/oauth/token?#{client_info_querystring}"
         @options.client_options.userinfo_url  = "https://#{options[:namespace]}/userinfo"
       end
 
@@ -69,6 +70,12 @@ module OmniAuth
 
       def raw_info
         @raw_info ||= access_token.get(options.client_options.userinfo_url).parsed
+      end
+
+      private
+      def client_info_querystring
+        client_info = JSON.dump({name: 'omniauth-auth0', version: ::Auth0::VERSION})
+        "auth0Client=" + Base64.urlsafe_encode64(client_info)
       end
     end
   end
