@@ -30,6 +30,7 @@ omniauth-auth0 is the omniauth strategy for Auth0.
   s.add_development_dependency 'simplecov', '~> 0.9', '>= 0.9.1'
   s.add_development_dependency 'webmock', '~> 1.20', '>= 1.20.4'
   s.add_development_dependency 'rake', '~> 10.3', '>= 10.3.2'
-
+  s.add_development_dependency 'gem-release', '~> 0.7'
+  
   s.license = 'MIT'
 end
