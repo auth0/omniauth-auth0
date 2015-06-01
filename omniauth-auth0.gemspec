@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "auth0/version"
+require "omniauth-auth0/version"
 
 Gem::Specification.new do |s|
   s.name        = "omniauth-auth0"
