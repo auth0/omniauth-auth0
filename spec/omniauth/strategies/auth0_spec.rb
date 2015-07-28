@@ -30,7 +30,7 @@ describe OmniAuth::Strategies::Auth0 do
 
   context "initiation" do
     let(:base64_token) {
-      Base64.urlsafe_encode64('{"name":"omniauth-auth0","version":"'+Auth0::VERSION+'"}')
+      Base64.urlsafe_encode64('{"name":"omniauth-auth0","version":"' + OmniAuth::Auth0::VERSION + '"}')
     }
 
     it "uses the correct site" do
