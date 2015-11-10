@@ -4,7 +4,7 @@ function signin() {
 	    callbackURL: 'http://localhost:3000/auth/auth0/callback', // use this in production  '<%= Rails.application.secrets.auth0_callback_url %>'
 	    responseType: 'code', 
 	    authParams: {
-	    	scope: 'openid profile'
+	    	scope: 'openid name email picture'
 	  	}
 	});
 }
