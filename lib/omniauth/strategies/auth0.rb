@@ -46,6 +46,7 @@ module OmniAuth
         if access_token.params
           hash.merge!('id_token' => access_token.params['id_token'])
           hash.merge!('token_type' => access_token.params['token_type'])
+          hash.merge!('refresh_token' => access_token.refresh_token) if access_token.refresh_token
         end
         hash
       end
