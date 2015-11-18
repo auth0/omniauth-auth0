@@ -1,17 +1,22 @@
 # Change Log
 
-## [v1.4.0](https://github.com/auth0/omniauth-auth0/tree/v1.4.0) (2015-06-01)
+## [v1.4.1](https://github.com/auth0/omniauth-auth0/tree/v1.4.1) (2015-11-18)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.0...v1.4.1)
 
 **Merged pull requests:**
 
+- Updating the strategy to set the refresh token in the credentials [\#14](https://github.com/auth0/omniauth-auth0/pull/14) ([LindseyB](https://github.com/LindseyB))
+- Update README.md [\#13](https://github.com/auth0/omniauth-auth0/pull/13) ([Annyv2](https://github.com/Annyv2))
+- Update home.js [\#12](https://github.com/auth0/omniauth-auth0/pull/12) ([Annyv2](https://github.com/Annyv2))
+- Add nested module in version.rb [\#9](https://github.com/auth0/omniauth-auth0/pull/9) ([l4u](https://github.com/l4u))
+
+## [v1.4.0](https://github.com/auth0/omniauth-auth0/tree/v1.4.0) (2015-06-01)
+**Merged pull requests:**
+
 - Client headers [\#8](https://github.com/auth0/omniauth-auth0/pull/8) ([benschwarz](https://github.com/benschwarz))
-
 - Web application seed with Lock [\#5](https://github.com/auth0/omniauth-auth0/pull/5) ([sandrinodimattia](https://github.com/sandrinodimattia))
-
 - Create LICENSE.md [\#4](https://github.com/auth0/omniauth-auth0/pull/4) ([pose](https://github.com/pose))
-
 - Update README.md [\#3](https://github.com/auth0/omniauth-auth0/pull/3) ([pose](https://github.com/pose))
-
 - Fix Markdown typo [\#2](https://github.com/auth0/omniauth-auth0/pull/2) ([dentarg](https://github.com/dentarg))
 
 
