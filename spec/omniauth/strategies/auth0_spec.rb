@@ -162,6 +162,16 @@ describe OmniAuth::Strategies::Auth0 do
         expect(subject.credentials['token'][:access_token]).to eq('OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI')
         expect(subject.credentials['token'][:token_type]).to eq('bearer')
       end
+      
+      it 'returns the refresh token' do
+        allow(@access_token).to receive(:refresh_token) { "your_refresh_token" }
+        allow(@access_token).to receive(:params) {
+          {
+            'id_token' => "your_id_token",
+            'token_type' => "your_token_type"
+          } }
+        expect(subject.credentials['refresh_token']).to eq('your_refresh_token')
+      end
     end
   end
 end
