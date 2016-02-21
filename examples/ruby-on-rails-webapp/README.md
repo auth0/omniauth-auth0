@@ -18,3 +18,5 @@ AUTH0_DOMAIN=samples.auth0.com
 AUTH0_CALLBACK_URL=http://localhost:3000/auth/auth0/callback
 ````
 Once you've set those 4 enviroment variables, just run `rails s` and try calling [http://localhost:3000/](http://localhost:3000/)
+
+__Note:__ If you are using Windows, uncomment the `tzinfo-data` gem in the gemfile
