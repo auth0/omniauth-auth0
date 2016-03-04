@@ -4,7 +4,7 @@ require "omniauth-auth0/version"
 
 Gem::Specification.new do |s|
   s.name        = "omniauth-auth0"
-  s.version     = Auth0::VERSION
+  s.version     = OmniAuth::Auth0::VERSION
   s.authors     = ["Auth0", "Ezequiel Morito", "Jose Romaniello"]
   s.email       = ["support@auth0.com"]
   s.homepage    = "https://github.com/auth0/omniauth-auth0"

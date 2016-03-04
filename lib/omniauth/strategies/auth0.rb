@@ -46,6 +46,7 @@ module OmniAuth
         if access_token.params
           hash.merge!('id_token' => access_token.params['id_token'])
           hash.merge!('token_type' => access_token.params['token_type'])
+          hash.merge!('refresh_token' => access_token.refresh_token) if access_token.refresh_token
         end
         hash
       end
@@ -74,7 +75,7 @@ module OmniAuth
 
       private
       def client_info_querystring
-        client_info = JSON.dump({name: 'omniauth-auth0', version: ::Auth0::VERSION})
+        client_info = JSON.dump({name: 'omniauth-auth0', version: OmniAuth::Auth0::VERSION})
         "auth0Client=" + Base64.urlsafe_encode64(client_info)
       end
     end
