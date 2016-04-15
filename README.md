@@ -2,7 +2,7 @@
 
 # OmniAuth Auth0
 
-This is the official OmniAuth strategy for authenticating to [Auth0](https://auth0.com).
+This is the official [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating to [Auth0](https://auth0.com).
 
 ## Installing
 
