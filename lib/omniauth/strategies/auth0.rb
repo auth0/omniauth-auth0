@@ -32,11 +32,13 @@ module OmniAuth
           @options.client_options.site =
             "https://#{options[:namespace]}"
           @options.client_options.authorize_url =
-            "https://#{options[:namespace]}/authorize?#{client_info_querystring}"
+            "https://#{options[:namespace]}/authorize?#{self.class.client_info_querystring}"
           @options.client_options.token_url =
-            "https://#{options[:namespace]}/oauth/token?#{client_info_querystring}"
+            "https://#{options[:namespace]}/oauth/token?#{self.class.client_info_querystring}"
           @options.client_options.userinfo_url =
             "https://#{options[:namespace]}/userinfo"
+        elsif !options[:setup]
+          fail(ArgumentError.new("Received wrong number of arguments. #{args.inspect}"))
         end
       end
 
