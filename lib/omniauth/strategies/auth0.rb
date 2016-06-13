@@ -14,19 +14,32 @@ module OmniAuth
       option :provider_ignores_state, true
       option :connection
 
+      option :client_options, {
+        authorize_url: "/authorize",
+        token_url: "/oauth/token",
+        userinfo_url: "/userinfo"
+      }
+
       args [:client_id, :client_secret, :namespace, :provider_ignores_state, :connection]
 
       def initialize(app, *args, &block)
         super
-        fail(ArgumentError.new("Received wrong number of arguments. #{args.inspect}")) if @options[:namespace].nil?
 
-        @options.provider_ignores_state = args[3] unless args[3].nil?
-        @options.connection = args[4] unless args[4].nil?
+        if options[:namespace]
+          @options.provider_ignores_state = args[3] unless args[3].nil?
+          @options.connection = args[4] unless args[4].nil?
 
-        @options.client_options.site          = "https://#{options[:namespace]}"
-        @options.client_options.authorize_url = "https://#{options[:namespace]}/authorize?#{client_info_querystring}"
-        @options.client_options.token_url     = "https://#{options[:namespace]}/oauth/token?#{client_info_querystring}"
-        @options.client_options.userinfo_url  = "https://#{options[:namespace]}/userinfo"
+          @options.client_options.site =
+            "https://#{options[:namespace]}"
+          @options.client_options.authorize_url =
+            "https://#{options[:namespace]}/authorize?#{self.class.client_info_querystring}"
+          @options.client_options.token_url =
+            "https://#{options[:namespace]}/oauth/token?#{self.class.client_info_querystring}"
+          @options.client_options.userinfo_url =
+            "https://#{options[:namespace]}/userinfo"
+        elsif !options[:setup]
+          fail(ArgumentError.new("Received wrong number of arguments. #{args.inspect}"))
+        end
       end
 
       def authorize_params
@@ -73,8 +86,7 @@ module OmniAuth
         @raw_info ||= access_token.get(options.client_options.userinfo_url).parsed
       end
 
-      private
-      def client_info_querystring
+      def self.client_info_querystring
         client_info = JSON.dump({name: 'omniauth-auth0', version: OmniAuth::Auth0::VERSION})
         "auth0Client=" + Base64.urlsafe_encode64(client_info)
       end
