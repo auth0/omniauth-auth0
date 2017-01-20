@@ -1,6 +1,7 @@
-require "base64"
-require "omniauth-oauth2"
+require 'base64'
+require 'omniauth-oauth2'
 
+# Auth0 OmniAuth strategy
 module OmniAuth
   module Strategies
     class Auth0 < OmniAuth::Strategies::OAuth2
@@ -15,9 +16,9 @@ module OmniAuth
       option :connection
 
       option :client_options, {
-        authorize_url: "/authorize",
-        token_url: "/oauth/token",
-        userinfo_url: "/userinfo"
+        authorize_url: '/authorize',
+        token_url: '/oauth/token',
+        userinfo_url: '/userinfo'
       }
 
       args [:client_id, :client_secret, :namespace, :provider_ignores_state, :connection]
@@ -35,8 +36,7 @@ module OmniAuth
             "https://#{options[:namespace]}/authorize?#{self.class.client_info_querystring}"
           @options.client_options.token_url =
             "https://#{options[:namespace]}/oauth/token?#{self.class.client_info_querystring}"
-          @options.client_options.userinfo_url =
-            "https://#{options[:namespace]}/userinfo"
+          @options.client_options.userinfo_url = "https://#{options[:namespace]}/userinfo"
         elsif !options[:setup]
           fail(ArgumentError.new("Received wrong number of arguments. #{args.inspect}"))
         end
