@@ -1,16 +1,16 @@
 require 'base64'
 require 'omniauth-oauth2'
 
-# Auth0 OmniAuth strategy
 module OmniAuth
   module Strategies
+    # Auth0 OmniAuth strategy
     class Auth0 < OmniAuth::Strategies::OAuth2
       PASSTHROUGHS = %w[
         connection
         redirect_uri
       ]
 
-      option :name, "auth0"
+      option :name, 'auth0'
       option :namespace, nil
       option :provider_ignores_state, true
       option :connection
@@ -21,7 +21,13 @@ module OmniAuth
         userinfo_url: '/userinfo'
       }
 
-      args [:client_id, :client_secret, :namespace, :provider_ignores_state, :connection]
+      args [
+        :client_id,
+        :client_secret,
+        :namespace,
+        :provider_ignores_state,
+        :connection
+      ]
 
       def initialize(app, *args, &block)
         super
@@ -64,7 +70,7 @@ module OmniAuth
         hash
       end
 
-      uid { raw_info["user_id"] }
+      uid { raw_info['sub'] }
 
       extra do
         { :raw_info => raw_info }
@@ -72,13 +78,8 @@ module OmniAuth
 
       info do
         {
-          :name => raw_info["name"],
-          :email => raw_info["email"],
-          :nickname => raw_info["nickname"],
-          :first_name => raw_info["given_name"],
-          :last_name => raw_info["family_name"],
-          :location => raw_info["locale"],
-          :image => raw_info["picture"]
+          :name => raw_info['name'],
+          :email => raw_info['email'],
         }
       end
 
@@ -88,7 +89,7 @@ module OmniAuth
 
       def self.client_info_querystring
         client_info = JSON.dump({name: 'omniauth-auth0', version: OmniAuth::Auth0::VERSION})
-        "auth0Client=" + Base64.urlsafe_encode64(client_info)
+        'auth0Client=' + Base64.urlsafe_encode64(client_info)
       end
     end
   end
