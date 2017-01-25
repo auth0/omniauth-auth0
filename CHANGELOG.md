@@ -1,5 +1,22 @@
 # Change Log
 
+## [v2.0.0](https://github.com/auth0/omniauth-auth0/tree/v2.0.0) (2017-01-25)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.1...v2.0.0)
+
+Updated library to handle OIDC conformant clients and OAuth2 features in Auth0.
+This affects how the `credentials` and `info` attributes are populated since the payload of /oauth/token and /userinfo are differnt when using OAuth2/OIDC features.
+
+The `credentials` hash will always have an `access_token` and might have a `refresh_token` (if it's allowed in your API settings in Auth0 dashboard and requested using `offline_access` scope) and an `id_token` (scope `openid` is needed for Auth0 to return it).
+
+The `info` object will use the [OmniAuth schema](https://github.com/omniauth/omniauth/wiki/Auth-Hash-Schema#schema-10-and-later) after calling /userinfo:
+
+- name: `name` attribute in userinfo response or `sub` if not available.
+- email: `email` attribute in userinfo response.
+- nickname: `nickname` attribute in userinfo response.
+- image: `picture` attribute in userinfo response.
+
+Also in `extra` will have in `raw_info` the full /userinfo response.
+
 ## [v1.4.1](https://github.com/auth0/omniauth-auth0/tree/v1.4.1) (2015-11-18)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.0...v1.4.1)
 

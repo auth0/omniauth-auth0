@@ -1,5 +1,5 @@
 module OmniAuth
   module Auth0
-    VERSION = '1.4.2'.freeze
+    VERSION = '2.0.0'.freeze
   end
 end
