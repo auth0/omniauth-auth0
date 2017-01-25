@@ -81,7 +81,6 @@ describe OmniAuth::Strategies::Auth0 do
     end
 
     describe 'callback' do
-
       let(:access_token) { 'access token' }
       let(:expires_in) { 2000 }
       let(:token_type) { 'bearer' }
