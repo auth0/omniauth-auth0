@@ -32,7 +32,31 @@ module OmniAuth
         {}
       end
 
+      def request_phase
+        if no_client_id?
+          fail!(:missing_client_id)
+        elsif no_client_secret?
+          fail!(:missing_client_secret)
+        elsif no_domain?
+          fail!(:missing_domain)
+        else
+          super
+        end
+      end
+
       private
+
+      def no_client_id?
+        ['', nil].include?(options.client_id)
+      end
+
+      def no_client_secret?
+        ['', nil].include?(options.client_secret)
+      end
+
+      def no_domain?
+        ['', nil].include?(options.domain)
+      end
 
       def domain_url
         domain_url = URI(options.domain)
