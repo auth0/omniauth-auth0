@@ -16,7 +16,9 @@ end
 
 namespace :sinatra do
   task :start do
-    system 'bundle exec shotgun --server=thin --port=3000 examples/sinatra/config.ru'
+    system 'bundle exec shotgun' \
+           '--server=thin --port=3000' \
+           'examples/sinatra/config.ru'
   end
 end
 
