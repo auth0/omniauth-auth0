@@ -46,7 +46,7 @@ module OmniAuth
           name: raw_info['name'] || raw_info['sub'],
           nickname: raw_info['nickname'],
           email: raw_info['email'],
-          picture: raw_info['picture']
+          image: raw_info['picture']
         }
       end
 
