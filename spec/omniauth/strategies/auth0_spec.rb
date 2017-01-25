@@ -1,177 +1,289 @@
-require "spec_helper"
+require 'spec_helper'
+
+RSpec.shared_examples 'site has valid domain url' do |url|
+  it { expect(subject.site).to eq(url) }
+end
 
 describe OmniAuth::Strategies::Auth0 do
-  let(:app){ Rack::Builder.new do |b|
-    b.use Rack::Session::Cookie, {:secret => "abc123"}
-    b.run lambda{|env| [200, {}, ['Not Found']]}
-  end.to_app }
-
-  before :each do
-    OmniAuth.config.test_mode = true
-    @request = double('Request')
-    allow(@request).to receive(:params)
-    allow(@request).to receive(:cookies)
-    allow(@request).to receive(:env)
-
-    @session = double('Session')
-    allow(@session).to receive(:delete).with('omniauth.state').and_return('state')
-  end
-
-  after do
-    OmniAuth.config.test_mode = false
-  end
-
-  subject do
-    OmniAuth::Strategies::Auth0.new(app,
-        "client_id", "client_secret", "tenny.auth0.com:3000").tap do |strategy|
-      allow(strategy).to receive(:request) { @request }
+  let(:client_id) { 'CLIENT_ID' }
+  let(:client_secret) { 'CLIENT_SECRET' }
+  let(:domain_url) { 'https://samples.auth0.com' }
+  let(:application) do
+    lambda do
+      [200, {}, ['Hello.']]
     end
   end
+  let(:auth0) do
+    OmniAuth::Strategies::Auth0.new(
+      application,
+      client_id,
+      client_secret,
+      domain_url
+    )
+  end
 
-  context "initiation" do
-    let(:base64_token) {
-      Base64.urlsafe_encode64('{"name":"omniauth-auth0","version":"' + OmniAuth::Auth0::VERSION + '"}')
-    }
+  describe 'client_options' do
+    let(:subject) { auth0.client }
 
-    it "uses the correct site" do
-      expect(subject.options.client_options.site).to eql "https://tenny.auth0.com:3000"
+    context 'domain with https' do
+      let(:domain_url) { 'https://samples.auth0.com' }
+      it_behaves_like 'site has valid domain url', 'https://samples.auth0.com'
     end
 
-    it "uses the correct authorize_url" do
-      expect(subject.options.client_options.authorize_url).
-        to eql "https://tenny.auth0.com:3000/authorize?auth0Client=#{base64_token}"
-
+    context 'domain with http' do
+      let(:domain_url) { 'http://mydomain.com' }
+      it_behaves_like 'site has valid domain url', 'http://mydomain.com'
     end
 
-    it "uses the correct token_url" do
-      expect(subject.options.client_options.token_url).
-        to eql "https://tenny.auth0.com:3000/oauth/token?auth0Client=#{base64_token}"
+    context 'domain with host only' do
+      let(:domain_url) { 'samples.auth0.com' }
+      it_behaves_like 'site has valid domain url', 'https://samples.auth0.com'
     end
 
-    it "uses the correct userinfo url" do
-      expect(subject.options.client_options.userinfo_url).
-        to eql "https://tenny.auth0.com:3000/userinfo"
+    it 'should have correct authorize path' do
+      expect(subject.options[:authorize_url]).to eq('/authorize')
     end
 
-    it "should raise an ArgumentError error if no namespace passed" do
-      expect {
-        OmniAuth::Strategies::Auth0.new(app, "client_id", "client_secret")
-       }.to raise_error(ArgumentError)
+    it 'should have the correct userinfo path' do
+      expect(subject.options[:userinfo_url]).to eq('/userinfo')
+    end
+
+    it 'should have the correct token path' do
+      expect(subject.options[:token_url]).to eq('/oauth/token')
     end
   end
 
-  context "request phase" do
-    before(:each){ get '/auth/auth0' }
+  describe 'options' do
+    let(:subject) { auth0.options }
 
-    it "authenticate" do
-      expect(last_response.status).to eq(200)
+    it 'should have the correct client_id' do
+      expect(subject[:client_id]).to eq(client_id)
     end
 
-    it "authorize params" do
-      allow(subject).to receive(:request) { double('Request', {:params => {
-        "connection" => "google-oauth2", "redirect_uri" => "redirect_uri" }, :env => {}}) }
-      expect(subject.authorize_params).to include("connection")
-      expect(subject.authorize_params).to include("state")
-      expect(subject.authorize_params).to include("redirect_uri")
+    it 'should have the correct client secret' do
+      expect(subject[:client_secret]).to eq(client_secret)
+    end
+    it 'should have correct domain' do
+      expect(subject[:domain]).to eq(domain_url)
     end
   end
 
-  describe "callback phase" do
-    before :each do
-      @raw_info = {
-        "_id" => "165dabb5140ee2cc66b5137912ccd760",
-        "email" => "user@mail.com",
-        "family_name" => "LastName",
-        "gender" => "male",
-        "given_name" => "FirstName",
-        "identities" => [
-          {
-            "access_token" => "ya29.AHES6ZRPK1Skc_rtB30Em_5RkZlKez3FkktcmJ_0RX5fIkCbkOCrXA",
-            "provider" => "google-oauth2",
-            "user_id" => "102835921788417079450",
-            "connection" => "google-oauth2",
-            "isSocial" => true
-          }
-        ],
-        "locale" => "en",
-        "name" => "FirstName LastName",
-        "nickname" => "nick",
-        "picture" => "pic",
-        "user_id" => "google-oauth2|102835921788417079450"
-      }
-      allow(subject).to receive(:raw_info) { @raw_info }
+  describe 'oauth' do
+    it 'redirects to hosted login page' do
+      get 'auth/auth0'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to start_with('https://samples.auth0.com/authorize')
+      expect(redirect_url).to have_query('response_type', 'code')
+      expect(redirect_url).to have_query('state')
+      expect(redirect_url).to have_query('client_id')
+      expect(redirect_url).to have_query('redirect_uri')
     end
 
-    context "info" do
-      it 'returns the uid (required)' do
-        expect(subject.uid).to eq('google-oauth2|102835921788417079450')
+    describe 'callback' do
+      let(:access_token) { 'access token' }
+      let(:expires_in) { 2000 }
+      let(:token_type) { 'bearer' }
+      let(:refresh_token) { 'refresh token' }
+      let(:id_token) { 'id token' }
+
+      let(:user_id) { 'user identifier' }
+      let(:state) { SecureRandom.hex(8) }
+      let(:name) { 'John' }
+      let(:nickname) { 'J' }
+      let(:picture) { 'some picture url' }
+      let(:email) { 'mail@mail.com' }
+      let(:email_verified) { true }
+
+      let(:oauth_response) do
+        {
+          access_token: access_token,
+          expires_in: expires_in,
+          token_type: token_type
+        }
       end
 
-      it 'returns the name (required)' do
-        expect(subject.info[:name]).to eq('FirstName LastName')
+      let(:oidc_response) do
+        {
+          id_token: id_token,
+          access_token: access_token,
+          expires_in: expires_in,
+          token_type: token_type
+        }
       end
 
-      it 'returns the email' do
-        expect(subject.info[:email]).to eq('user@mail.com')
+      let(:basic_user_info) { { sub: user_id } }
+      let(:oidc_user_info) do
+        {
+          sub: user_id,
+          name: name,
+          nickname: nickname,
+          email: email,
+          picture: picture,
+          email_verified: email_verified
+        }
       end
 
-      it 'returns the nickname' do
-        expect(subject.info[:nickname]).to eq('nick')
+      def stub_auth(body)
+        stub_request(:post, 'https://samples.auth0.com/oauth/token')
+          .to_return(
+            headers: { 'Content-Type' => 'application/json' },
+            body: MultiJson.encode(body)
+          )
       end
 
-      it 'returns the last name' do
-        expect(subject.info[:last_name]).to eq('LastName')
+      def stub_userinfo(body)
+        stub_request(:get, 'https://samples.auth0.com/userinfo')
+          .to_return(
+            headers: { 'Content-Type' => 'application/json' },
+            body: MultiJson.encode(body)
+          )
       end
 
-      it 'returns the first name' do
-        expect(subject.info[:first_name]).to eq('FirstName')
+      def trigger_callback
+        get '/auth/auth0/callback', { 'state' => state },
+            'rack.session' => { 'omniauth.state' => state }
       end
 
-      it 'returns the location' do
-        expect(subject.info[:location]).to eq('en')
+      before(:each) do
+        WebMock.reset!
       end
 
-      it 'returns the image' do
-        expect(subject.info[:image]).to eq('pic')
+      let(:subject) { MultiJson.decode(last_response.body) }
+
+      context 'basic oauth' do
+        before do
+          stub_auth(oauth_response)
+          stub_userinfo(basic_user_info)
+          trigger_callback
+        end
+
+        it 'to succeed' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has credentials' do
+          expect(subject['credentials']['token']).to eq(access_token)
+          expect(subject['credentials']['expires']).to be true
+          expect(subject['credentials']['expires_at']).to_not be_nil
+        end
+
+        it 'has basic values' do
+          expect(subject['provider']).to eq('auth0')
+          expect(subject['uid']).to eq(user_id)
+          expect(subject['info']['name']).to eq(user_id)
+        end
+      end
+
+      context 'basic oauth w/refresh token' do
+        before do
+          stub_auth(oauth_response.merge(refresh_token: refresh_token))
+          stub_userinfo(basic_user_info)
+          trigger_callback
+        end
+
+        it 'to succeed' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has credentials' do
+          expect(subject['credentials']['token']).to eq(access_token)
+          expect(subject['credentials']['refresh_token']).to eq(refresh_token)
+          expect(subject['credentials']['expires']).to be true
+          expect(subject['credentials']['expires_at']).to_not be_nil
+        end
+      end
+
+      context 'oidc' do
+        before do
+          stub_auth(oidc_response)
+          stub_userinfo(oidc_user_info)
+          trigger_callback
+        end
+
+        it 'to succeed' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has credentials' do
+          expect(subject['credentials']['token']).to eq(access_token)
+          expect(subject['credentials']['expires']).to be true
+          expect(subject['credentials']['expires_at']).to_not be_nil
+          expect(subject['credentials']['id_token']).to eq(id_token)
+        end
+
+        it 'has basic values' do
+          expect(subject['provider']).to eq('auth0')
+          expect(subject['uid']).to eq(user_id)
+        end
+
+        it 'has info' do
+          expect(subject['info']['name']).to eq(name)
+          expect(subject['info']['nickname']).to eq(nickname)
+          expect(subject['info']['picture']).to eq(picture)
+          expect(subject['info']['email']).to eq(email)
+        end
+
+        it 'has extra' do
+          expect(subject['extra']['raw_info']['email_verified']).to be true
+        end
       end
     end
+  end
 
-    context "get token" do
-      before :each do
-        @access_token = double('OAuth2::AccessToken')
-
-        allow(@access_token).to receive(:token)
-        allow(@access_token).to receive(:expires?)
-        allow(@access_token).to receive(:expires_at)
-        allow(@access_token).to receive(:refresh_token)
-        allow(@access_token).to receive(:params)
-
-        allow(subject).to receive(:access_token) { @access_token }
-      end
-
-      it 'returns a Hash' do
-        expect(subject.credentials).to be_a(Hash)
-      end
-
-      it 'returns the token' do
-        allow(@access_token).to receive(:token) {
-          {
-            :access_token => "OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI",
-            :token_type => "bearer"
-          } }
-        expect(subject.credentials['token'][:access_token]).to eq('OTqSFa9zrh0VRGAZHH4QPJISCoynRwSy9FocUazuaU950EVcISsJo3pST11iTCiI')
-        expect(subject.credentials['token'][:token_type]).to eq('bearer')
-      end
-      
-      it 'returns the refresh token' do
-        allow(@access_token).to receive(:refresh_token) { "your_refresh_token" }
-        allow(@access_token).to receive(:params) {
-          {
-            'id_token' => "your_id_token",
-            'token_type' => "your_token_type"
-          } }
-        expect(subject.credentials['refresh_token']).to eq('your_refresh_token')
-      end
+  describe 'error_handling' do
+    it 'fails when missing client_id' do
+      @app = make_application(client_id: nil)
+      get 'auth/auth0'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to fail_auth_with('missing_client_id')
     end
+
+    it 'fails when missing client_secret' do
+      @app = make_application(client_secret: nil)
+      get 'auth/auth0'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to fail_auth_with('missing_client_secret')
+    end
+
+    it 'fails when missing domain' do
+      @app = make_application(domain: nil)
+      get 'auth/auth0'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to fail_auth_with('missing_domain')
+    end
+  end
+end
+
+RSpec::Matchers.define :fail_auth_with do |message|
+  match do |actual|
+    uri = URI(actual)
+    query = CGI.parse(uri.query)
+    (uri.path == '/auth/failure') &&
+      (query['message'] == [message]) &&
+      (query['strategy'] == ['auth0'])
+  end
+end
+
+RSpec::Matchers.define :have_query do |key, value|
+  match do |actual|
+    uri = redirect_uri(actual)
+    query = query(uri)
+    if value.nil?
+      query[key].length == 1
+    else
+      query[key] == [value]
+    end
+  end
+
+  def redirect_uri(string)
+    URI(string)
+  end
+
+  def query(uri)
+    CGI.parse(uri.query)
   end
 end

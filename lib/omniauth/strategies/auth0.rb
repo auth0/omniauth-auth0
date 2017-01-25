@@ -1,94 +1,104 @@
-require "base64"
-require "omniauth-oauth2"
+require 'base64'
+require 'uri'
+require 'omniauth-oauth2'
 
 module OmniAuth
   module Strategies
+    # Auth0 OmniAuth strategy
     class Auth0 < OmniAuth::Strategies::OAuth2
-      PASSTHROUGHS = %w[
-        connection
-        redirect_uri
+      option :name, 'auth0'
+
+      args [
+        :client_id,
+        :client_secret,
+        :domain
       ]
 
-      option :name, "auth0"
-      option :namespace, nil
-      option :provider_ignores_state, true
-      option :connection
-
-      option :client_options, {
-        authorize_url: "/authorize",
-        token_url: "/oauth/token",
-        userinfo_url: "/userinfo"
-      }
-
-      args [:client_id, :client_secret, :namespace, :provider_ignores_state, :connection]
-
-      def initialize(app, *args, &block)
+      def client
+        options.client_options.site = domain_url
+        options.client_options.authorize_url = '/authorize'
+        options.client_options.token_url = '/oauth/token'
+        options.client_options.userinfo_url = '/userinfo'
         super
-
-        if options[:namespace]
-          @options.provider_ignores_state = args[3] unless args[3].nil?
-          @options.connection = args[4] unless args[4].nil?
-
-          @options.client_options.site =
-            "https://#{options[:namespace]}"
-          @options.client_options.authorize_url =
-            "https://#{options[:namespace]}/authorize?#{self.class.client_info_querystring}"
-          @options.client_options.token_url =
-            "https://#{options[:namespace]}/oauth/token?#{self.class.client_info_querystring}"
-          @options.client_options.userinfo_url =
-            "https://#{options[:namespace]}/userinfo"
-        elsif !options[:setup]
-          fail(ArgumentError.new("Received wrong number of arguments. #{args.inspect}"))
-        end
       end
 
-      def authorize_params
-        super.tap do |param|
-          PASSTHROUGHS.each do |p|
-            param[p.to_sym] = request.params[p] if request.params[p]
-          end
-          if @options.connection
-            param[:connection] = @options.connection
-          end
-        end
-      end
+      uid { raw_info['sub'] }
 
       credentials do
-        hash = {'token' => access_token.token}
-        hash.merge!('expires' => true)
+        hash = { 'token' => access_token.token }
+        hash['expires'] = true
         if access_token.params
-          hash.merge!('id_token' => access_token.params['id_token'])
-          hash.merge!('token_type' => access_token.params['token_type'])
-          hash.merge!('refresh_token' => access_token.refresh_token) if access_token.refresh_token
+          hash['id_token'] = access_token.params['id_token']
+          hash['token_type'] = access_token.params['token_type']
+          hash['refresh_token'] = access_token.refresh_token
         end
         hash
       end
 
-      uid { raw_info["user_id"] }
-
       extra do
-        { :raw_info => raw_info }
+        {
+          raw_info: raw_info
+        }
       end
 
       info do
         {
-          :name => raw_info["name"],
-          :email => raw_info["email"],
-          :nickname => raw_info["nickname"],
-          :first_name => raw_info["given_name"],
-          :last_name => raw_info["family_name"],
-          :location => raw_info["locale"],
-          :image => raw_info["picture"]
+          name: raw_info['name'] || raw_info['sub'],
+          nickname: raw_info['nickname'],
+          email: raw_info['email'],
+          picture: raw_info['picture']
         }
       end
 
-      def raw_info
-        @raw_info ||= access_token.get(options.client_options.userinfo_url).parsed
+      def authorize_params
+        params = super
+        params['auth0Client'] = client_info
+        params
       end
 
-      def self.client_info_querystring
-        client_info = JSON.dump({name: 'omniauth-auth0', version: OmniAuth::Auth0::VERSION})
-        "auth0Client=" + Base64.urlsafe_encode64(client_info)
+      def request_phase
+        if no_client_id?
+          fail!(:missing_client_id)
+        elsif no_client_secret?
+          fail!(:missing_client_secret)
+        elsif no_domain?
+          fail!(:missing_domain)
+        else
+          super
+        end
+      end
+
+      private
+
+      def raw_info
+        userinfo_url = options.client_options.userinfo_url
+        @raw_info ||= access_token.get(userinfo_url).parsed
+      end
+
+      def no_client_id?
+        ['', nil].include?(options.client_id)
+      end
+
+      def no_client_secret?
+        ['', nil].include?(options.client_secret)
+      end
+
+      def no_domain?
+        ['', nil].include?(options.domain)
+      end
+
+      def domain_url
+        domain_url = URI(options.domain)
+        domain_url = URI("https://#{domain_url}") if domain_url.scheme.nil?
+        domain_url.to_s
+      end
+
+      def client_info
+        client_info = JSON.dump(
+          name: 'omniauth-auth0',
+          version: OmniAuth::Auth0::VERSION
+        )
+        Base64.urlsafe_encode64(client_info)
       end
     end
   end

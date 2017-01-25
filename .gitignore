@@ -2,3 +2,8 @@
 coverage
 Gemfile.lock
 *.gem
+
+.#*
+.env
+log/
+tmp/

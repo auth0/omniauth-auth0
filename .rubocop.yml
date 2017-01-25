@@ -1,0 +1,20 @@
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+    - 'spec/spec_helper.rb'
+Metrics/MethodLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+Metrics/AbcSize:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+    - 'spec/spec_helper.rb'
+AllCops:
+  Exclude:
+    - 'omniauth-auth0.gemspec'
