@@ -79,6 +79,114 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('client_id')
       expect(redirect_url).to have_query('redirect_uri')
     end
+
+    describe 'callback' do
+
+      let(:access_token) { 'access token' }
+      let(:expires_in) { 2000 }
+      let(:token_type) { 'bearer' }
+
+      let(:user_id) { 'user identifier' }
+      let(:state) { SecureRandom.hex(8) }
+      let(:name) { 'John' }
+      let(:nickname) { 'J' }
+      let(:picture) { 'some picture url' }
+      let(:email) { 'mail@mail.com' }
+      let(:email_verified) { true }
+
+      let(:oauth_response) do
+        {
+          access_token: access_token,
+          expires_in: expires_in,
+          token_type: token_type
+        }
+      end
+
+      let(:basic_user_info) { { sub: user_id } }
+      let(:oidc_user_info) do
+        {
+          sub: user_id,
+          name: name,
+          nickname: nickname,
+          email: email,
+          picture: picture,
+          email_verified: email_verified
+        }
+      end
+
+      def stub_auth(body)
+        stub_request(:post, 'https://samples.auth0.com/oauth/token')
+          .to_return(
+            headers: { 'Content-Type' => 'application/json' },
+            body: MultiJson.encode(body)
+          )
+      end
+
+      def stub_userinfo(body)
+        stub_request(:get, 'https://samples.auth0.com/userinfo')
+          .to_return(
+            headers: { 'Content-Type' => 'application/json' },
+            body: MultiJson.encode(body)
+          )
+      end
+
+      def trigger_callback
+        get '/auth/auth0/callback', { 'state' => state },
+            'rack.session' => { 'omniauth.state' => state }
+      end
+
+      before(:each) do
+        WebMock.reset!
+      end
+
+      let(:subject) { MultiJson.decode(last_response.body) }
+
+      context 'basic oauth' do
+        before do
+          stub_auth(oauth_response)
+          stub_userinfo(basic_user_info)
+          trigger_callback
+        end
+
+        it 'to succeed' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has basic values' do
+          expect(subject['provider']).to eq('auth0')
+          expect(subject['uid']).to eq(user_id)
+          expect(subject['info']['name']).to eq(user_id)
+        end
+      end
+
+      context 'oidc' do
+        before do
+          stub_auth(oauth_response)
+          stub_userinfo(oidc_user_info)
+          trigger_callback
+        end
+
+        it 'to succeed' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has basic values' do
+          expect(subject['provider']).to eq('auth0')
+          expect(subject['uid']).to eq(user_id)
+        end
+
+        it 'has info' do
+          expect(subject['info']['name']).to eq(name)
+          expect(subject['info']['nickname']).to eq(nickname)
+          expect(subject['info']['picture']).to eq(picture)
+          expect(subject['info']['email']).to eq(email)
+        end
+
+        it 'has extra' do
+          expect(subject['extra']['raw_info']['email_verified']).to be true
+        end
+      end
+    end
   end
 
   describe 'error_handling' do

@@ -25,11 +25,18 @@ module OmniAuth
       uid { raw_info['sub'] }
 
       extra do
-        {}
+        {
+          raw_info: raw_info
+        }
       end
 
       info do
-        {}
+        {
+          name: raw_info['name'] || raw_info['sub'],
+          nickname: raw_info['nickname'],
+          email: raw_info['email'],
+          picture: raw_info['picture']
+        }
       end
 
       def request_phase
@@ -45,6 +52,11 @@ module OmniAuth
       end
 
       private
+
+      def raw_info
+        userinfo_url = options.client_options.userinfo_url
+        @raw_info ||= access_token.get(userinfo_url).parsed
+      end
 
       def no_client_id?
         ['', nil].include?(options.client_id)
