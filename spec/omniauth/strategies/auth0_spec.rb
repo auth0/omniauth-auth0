@@ -85,6 +85,8 @@ describe OmniAuth::Strategies::Auth0 do
       let(:access_token) { 'access token' }
       let(:expires_in) { 2000 }
       let(:token_type) { 'bearer' }
+      let(:refresh_token) { 'refresh token' }
+      let(:id_token) { 'id token' }
 
       let(:user_id) { 'user identifier' }
       let(:state) { SecureRandom.hex(8) }
@@ -96,6 +98,15 @@ describe OmniAuth::Strategies::Auth0 do
 
       let(:oauth_response) do
         {
+          access_token: access_token,
+          expires_in: expires_in,
+          token_type: token_type
+        }
+      end
+
+      let(:oidc_response) do
+        {
+          id_token: id_token,
           access_token: access_token,
           expires_in: expires_in,
           token_type: token_type
@@ -152,6 +163,12 @@ describe OmniAuth::Strategies::Auth0 do
           expect(last_response.status).to eq(200)
         end
 
+        it 'has credentials' do
+          expect(subject['credentials']['token']).to eq(access_token)
+          expect(subject['credentials']['expires']).to be true
+          expect(subject['credentials']['expires_at']).to_not be_nil
+        end
+
         it 'has basic values' do
           expect(subject['provider']).to eq('auth0')
           expect(subject['uid']).to eq(user_id)
@@ -159,15 +176,41 @@ describe OmniAuth::Strategies::Auth0 do
         end
       end
 
+      context 'basic oauth w/refresh token' do
+        before do
+          stub_auth(oauth_response.merge(refresh_token: refresh_token))
+          stub_userinfo(basic_user_info)
+          trigger_callback
+        end
+
+        it 'to succeed' do
+          expect(last_response.status).to eq(200)
+        end
+
+        it 'has credentials' do
+          expect(subject['credentials']['token']).to eq(access_token)
+          expect(subject['credentials']['refresh_token']).to eq(refresh_token)
+          expect(subject['credentials']['expires']).to be true
+          expect(subject['credentials']['expires_at']).to_not be_nil
+        end
+      end
+
       context 'oidc' do
         before do
-          stub_auth(oauth_response)
+          stub_auth(oidc_response)
           stub_userinfo(oidc_user_info)
           trigger_callback
         end
 
         it 'to succeed' do
           expect(last_response.status).to eq(200)
+        end
+
+        it 'has credentials' do
+          expect(subject['credentials']['token']).to eq(access_token)
+          expect(subject['credentials']['expires']).to be true
+          expect(subject['credentials']['expires_at']).to_not be_nil
+          expect(subject['credentials']['id_token']).to eq(id_token)
         end
 
         it 'has basic values' do

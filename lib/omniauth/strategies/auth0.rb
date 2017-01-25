@@ -24,6 +24,17 @@ module OmniAuth
 
       uid { raw_info['sub'] }
 
+      credentials do
+        hash = { 'token' => access_token.token }
+        hash['expires'] = true
+        if access_token.params
+          hash['id_token'] = access_token.params['id_token']
+          hash['token_type'] = access_token.params['token_type']
+          hash['refresh_token'] = access_token.refresh_token
+        end
+        hash
+      end
+
       extra do
         {
           raw_info: raw_info
