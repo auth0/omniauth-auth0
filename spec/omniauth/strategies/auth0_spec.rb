@@ -220,7 +220,7 @@ describe OmniAuth::Strategies::Auth0 do
         it 'has info' do
           expect(subject['info']['name']).to eq(name)
           expect(subject['info']['nickname']).to eq(nickname)
-          expect(subject['info']['picture']).to eq(picture)
+          expect(subject['info']['image']).to eq(picture)
           expect(subject['info']['email']).to eq(email)
         end
 
