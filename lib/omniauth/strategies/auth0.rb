@@ -50,6 +50,12 @@ module OmniAuth
         }
       end
 
+      def authorize_params
+        params = super
+        params['auth0Client'] = client_info
+        params
+      end
+
       def request_phase
         if no_client_id?
           fail!(:missing_client_id)
@@ -85,6 +91,14 @@ module OmniAuth
         domain_url = URI(options.domain)
         domain_url = URI("https://#{domain_url}") if domain_url.scheme.nil?
         domain_url.to_s
+      end
+
+      def client_info
+        client_info = JSON.dump(
+          name: 'omniauth-auth0',
+          version: OmniAuth::Auth0::VERSION
+        )
+        Base64.urlsafe_encode64(client_info)
       end
     end
   end
