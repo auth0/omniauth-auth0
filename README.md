@@ -14,7 +14,7 @@ gem 'omniauth-auth0'
 
 Then `bundle install`.
 
-## Basic Usage
+## Usage
 
 ### Rails
 
@@ -24,10 +24,10 @@ Rails.application.config.middleware.use OmniAuth::Builder do
 end
 ```
 
-If you want to force an identity provider you can simply redirect to the Omniauth path like this:
+Then to redirect to your tenant's hosted login page:
 
 ```ruby
-redirect_to '/auth/auth0?connection=CONNECTION_NAME'
+redirect_to '/auth/auth0'
 ```
 
 ### Sinatra
@@ -38,19 +38,49 @@ use OmniAuth::Builder do
 end
 ```
 
-> Optional you can set the `:provider_ignores_state` passing a fourth parameter. By default it is true.
-
-If you want to force to force an identity provider you can simply redirect to Omniauth path like this:
+Then to redirect to your tenant's hosted login page:
 
 ```ruby
-redirect to('/auth/auth0?connection=CONNECTION_NAME')
+redirect to('/auth/auth0')
 ```
 
-### Login widget
+> You can customize your hosted login page in your [Auth0 Dashboard](https://manage.auth0.com/#/login_page)
 
-Integrate the widget in one of your pages as described [here](http://auth0.com/docs/lock) or use links as described in the same link.
+### Auth parameters
+
+To send additional parameters during login you can specify them when you register the provider
+
+```ruby
+provider 
+  :auth0,
+  ENV['AUTH0_CLIENT_ID'],
+  ENV['AUTH0_CLIENT_SECRET'],
+  ENV['AUTH0_DOMAIN'],
+  {
+    authorize_params: {
+      scope: 'openid read:users write:order',
+      audience: 'https://mydomain/api'
+    }
+  }
+```
+
+that will tell it to send those parameters on every Auth request.
+
+Or you can do it for a specific Auth request by adding them in the query parameter of the redirect url:
+
+```ruby
+redirect_to '/auth/auth0?connection=google-oauth2'
+```
 
 ### Auth Hash
+
+Auth0 strategy will have the standard OmniAuth hash attributes:
+
+- provider: the name of the strategy, in this case `auth0`
+- uid: the user identifier
+- info: the result of the call to /userinfo using OmniAuth standard attributes
+- credentials: Auth0 tokens, at least will have an access_token but can eventually have refresh_token and/or id_token
+- extra: Additional info obtained from calling /userinfo in the attribute `raw_info`
 
 ```ruby
 	{
@@ -60,14 +90,13 @@ Integrate the widget in one of your pages as described [here](http://auth0.com/d
 	    :name => 'John Foo',
 	    :email => 'johnfoo@example.org',
 	    :nickname => 'john',
-	    :first_name => 'John',
-	    :last_name => 'Foo',
-	    :location => 'en',
 	    :image => 'https://example.org/john.jpg'
 	  },
 	  :credentials => {
 	    :token => 'XdDadllcas2134rdfdsI',
-	    :expires => 'false',
+	    :expires_at => 1485373937,
+        :expires => true,
+        :refresh_token => 'aKNajdjfj123nBasd',
 	    :id_token => 'eyJhbGciOiJIUzI1NiIsImN0eSI6IkpXVCJ9.eyJuYW1lIjoiSm9obiBGb28ifQ.lxAiy1rqve8ZHQEQVehUlP1sommPHVJDhgPgFPnDosg',
 	    :token_type => 'bearer',
 	  },
@@ -76,22 +105,9 @@ Integrate the widget in one of your pages as described [here](http://auth0.com/d
 	      :email => 'johnfoo@example.org',
 	      :email_verified => 'true',
 	      :name => 'John Foo',
-	      :given_name => 'John',
-	      :family_name => 'Foo',
 	      :picture => 'https://example.org/john.jpg',
-	      :gender => 'male',
-	      :locale => 'en',
-	      :clientID => 'nUBkskdaYdsaxK2n9',
 	      :user_id => 'google-oauth2|this-is-the-google-id',
 	      :nickname => 'john',
-	      :identities => [{
-	        :access_token => 'this-is-the-google-access-token',
-	        :provider => 'google-oauth2',
-	        :expires_in => '3599',
-	        :user_id => 'this-is-the-google-id',
-	        :connection => 'google-oauth2',
-	        :isSocial => 'true',
-	      }],
 	      :created_at: '2014-07-15T17:19:50.387Z'
 	    }
 	  }
@@ -120,7 +136,7 @@ If you have found a bug or if you have a feature request, please report them at 
 
 ## Author
 
-[Auth0](auth0.com)
+[Auth0](https://auth0.com)
 
 ## License
 
