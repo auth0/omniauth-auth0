@@ -53,7 +53,8 @@ module OmniAuth
       def authorize_params
         params = super
         params['auth0Client'] = client_info
-        params
+        parse_query = Rack::Utils.parse_query(request.query_string)
+        params.merge(parse_query)
       end
 
       def request_phase
