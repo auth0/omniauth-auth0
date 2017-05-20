@@ -8,11 +8,7 @@ module OmniAuth
     class Auth0 < OmniAuth::Strategies::OAuth2
       option :name, 'auth0'
 
-      args [
-        :client_id,
-        :client_secret,
-        :domain
-      ]
+      args %i[client_id client_secret domain]
 
       def client
         options.client_options.site = domain_url
@@ -53,7 +49,8 @@ module OmniAuth
       def authorize_params
         params = super
         params['auth0Client'] = client_info
-        params
+        parse_query = Rack::Utils.parse_query(request.query_string)
+        params.merge(parse_query)
       end
 
       def request_phase

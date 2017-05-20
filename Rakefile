@@ -23,7 +23,7 @@ namespace :sinatra do
 end
 
 desc 'Run specs'
-task default: [:spec, :rubocop]
+task default: %i[spec rubocop]
 task test: :spec
 task :guard do
   system 'bundle exec guard'
