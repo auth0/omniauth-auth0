@@ -8,11 +8,7 @@ module OmniAuth
     class Auth0 < OmniAuth::Strategies::OAuth2
       option :name, 'auth0'
 
-      args [
-        :client_id,
-        :client_secret,
-        :domain
-      ]
+      args %i[client_id client_secret domain]
 
       def client
         options.client_options.site = domain_url
