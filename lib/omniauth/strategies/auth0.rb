@@ -54,7 +54,8 @@ module OmniAuth
         params = super
         params['auth0Client'] = client_info
         parse_query = Rack::Utils.parse_query(request.query_string)
-        params.merge(parse_query)
+        params['connection'] = parse_query['connection']
+        params
       end
 
       def request_phase
