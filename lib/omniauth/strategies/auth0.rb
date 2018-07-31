@@ -55,6 +55,7 @@ module OmniAuth
         params['auth0Client'] = client_info
         parse_query = Rack::Utils.parse_query(request.query_string)
         params['connection'] = parse_query['connection']
+        params['prompt'] = parse_query['prompt']
         params
       end
 
