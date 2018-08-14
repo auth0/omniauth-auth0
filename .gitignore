@@ -7,3 +7,7 @@ Gemfile.lock
 .env
 log/
 tmp/
+
+## Environment normalization:
+/.bundle
+/vendor/bundle
