@@ -4,7 +4,7 @@
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.1...v2.0.0)
 
 Updated library to handle OIDC conformant clients and OAuth2 features in Auth0.
-This affects how the `credentials` and `info` attributes are populated since the payload of /oauth/token and /userinfo are differnt when using OAuth2/OIDC features.
+This affects how the `credentials` and `info` attributes are populated since the payload of /oauth/token and /userinfo are different when using OAuth2/OIDC features.
 
 The `credentials` hash will always have an `access_token` and might have a `refresh_token` (if it's allowed in your API settings in Auth0 dashboard and requested using `offline_access` scope) and an `id_token` (scope `openid` is needed for Auth0 to return it).
 

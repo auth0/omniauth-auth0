@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'jwt'
 
 RSpec.shared_examples 'site has valid domain url' do |url|
   it { expect(subject.site).to eq(url) }
@@ -97,7 +98,6 @@ describe OmniAuth::Strategies::Auth0 do
       let(:expires_in) { 2000 }
       let(:token_type) { 'bearer' }
       let(:refresh_token) { 'refresh token' }
-      let(:id_token) { 'id token' }
 
       let(:user_id) { 'user identifier' }
       let(:state) { SecureRandom.hex(8) }
@@ -107,8 +107,17 @@ describe OmniAuth::Strategies::Auth0 do
       let(:email) { 'mail@mail.com' }
       let(:email_verified) { true }
 
+      let(:id_token) do
+        payload = {}
+        payload['sub'] = user_id
+        payload['iss'] = "#{domain_url}/"
+        payload['aud'] = client_id
+        JWT.encode payload, client_secret, 'HS256'
+      end
+
       let(:oauth_response) do
         {
+          id_token: id_token,
           access_token: access_token,
           expires_in: expires_in,
           token_type: token_type

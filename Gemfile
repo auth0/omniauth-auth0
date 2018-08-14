@@ -1,9 +1,10 @@
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
 gemspec
 
 gem 'gem-release'
 gem 'rake'
+gem 'jwt'
 
 group :development do
   gem 'dotenv'

@@ -8,12 +8,12 @@ Gem::Specification.new do |s|
   s.authors     = ['Auth0']
   s.email       = ['info@auth0.com']
   s.homepage    = 'https://github.com/auth0/omniauth-auth0'
-  s.summary     = 'Omniauth OAuth2 strategy for the Auth0 platform.'
+  s.summary     = 'OmniAuth OAuth2 strategy for the Auth0 platform.'
   s.description = %q{Auth0 is an authentication broker that supports social identity providers as well as enterprise identity providers such as Active Directory, LDAP, Google Apps, Salesforce.
 
 OmniAuth is a library that standardizes multi-provider authentication for web applications. It was created to be powerful, flexible, and do as little as possible.
 
-omniauth-auth0 is the omniauth strategy for Auth0.
+omniauth-auth0 is the OmniAuth strategy for Auth0.
 }
 
   s.rubyforge_project = 'omniauth-auth0'
