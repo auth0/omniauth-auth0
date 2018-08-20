@@ -7,4 +7,3 @@ Gemfile.lock
 .env
 log/
 tmp/
-.idea
