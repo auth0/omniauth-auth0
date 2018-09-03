@@ -30,21 +30,24 @@ module OmniAuth
 
       # Build the API credentials hash with returned auth data.
       credentials do
-        hash = {}
-        hash['token'] = access_token.token
-        hash['expires'] = true
+        credentials = {
+          'token' => access_token.token,
+          'expires' => true
+        }
 
         if access_token.params
-          hash['id_token'] = access_token.params['id_token']
-          hash['token_type'] = access_token.params['token_type']
-          hash['refresh_token'] = access_token.refresh_token
+          credentials.merge!({
+            'id_token' => access_token.params['id_token'],
+            'token_type' => access_token.params['token_type'],
+            'refresh_token' => access_token.refresh_token,
+          })
         end
 
         # Make sure the ID token can be verified and decoded.
         auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
-        fail!(:invalid_id_token) unless auth0_jwt.decode(hash['id_token']).length
+        fail!(:invalid_id_token) unless auth0_jwt.decode(credentials['id_token']).length
 
-        hash
+        credentials
       end
 
       # Store all raw information for use in the session.
