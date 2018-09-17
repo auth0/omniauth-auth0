@@ -109,7 +109,7 @@ Auth0 strategy will have the standard OmniAuth hash attributes:
 	      :picture => 'https://example.org/john.jpg',
 	      :user_id => 'google-oauth2|this-is-the-google-id',
 	      :nickname => 'john',
-	      :created_at: '2014-07-15T17:19:50.387Z'
+	      :created_at => '2014-07-15T17:19:50.387Z'
 	    }
 	  }
 	}
