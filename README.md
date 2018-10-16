@@ -66,7 +66,7 @@ provider
 
 that will tell it to send those parameters on every Auth request.
 
-Or you can do it for a specific Auth request by adding them in the query parameter of the redirect url. Allowed parameters are `connection` and `prompt`:
+Or you can do it for a specific Auth request by adding them in the query parameter of the redirect URL. Allowed parameters are `connection` and `prompt`:
 
 ```ruby
 redirect_to '/auth/auth0?connection=google-oauth2'
