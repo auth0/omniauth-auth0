@@ -1,5 +1,28 @@
 # Change Log
 
+## [v2.1.0](https://github.com/auth0/omniauth-auth0/tree/v2.1.0) (2018-10-30)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.0.0...v2.1.0)
+
+**Closed issues**
+- URL should be spelled uppercase outside of code [\#64](https://github.com/auth0/omniauth-auth0/issues/64)
+- Add prompt=none authorization param handler [\#58](https://github.com/auth0/omniauth-auth0/issues/58)
+- Could not find a valid mapping for path "/auth/oauth2/callback" [\#56](https://github.com/auth0/omniauth-auth0/issues/56)
+- I had to downgrade my gems to use this strategy :-( [\#53](https://github.com/auth0/omniauth-auth0/issues/53)
+- CSRF detected [\#49](https://github.com/auth0/omniauth-auth0/issues/49)
+- /auth/:provider route not registered? [\#47](https://github.com/auth0/omniauth-auth0/issues/47)
+
+**Added**
+- Add ID token validation [\#62](https://github.com/auth0/omniauth-auth0/pull/62) ([joshcanhelp](https://github.com/joshcanhelp))
+- Silent authentication [\#59](https://github.com/auth0/omniauth-auth0/pull/59) ([batalla3692](https://github.com/batalla3692))
+- Pass connection parameter to auth0 [\#54](https://github.com/auth0/omniauth-auth0/pull/54) ([tomgi](https://github.com/tomgi))
+
+**Changed**
+- Update to omniauth-oauth2 [\#55](https://github.com/auth0/omniauth-auth0/pull/55) ([chills42](https://github.com/chills42))
+
+**Fixed**
+- Fix Rubocop errors [\#66](https://github.com/auth0/omniauth-auth0/pull/66) ([joshcanhelp](https://github.com/joshcanhelp))
+- Fix minute bug in README.md [\#63](https://github.com/auth0/omniauth-auth0/pull/63) ([rahuldess](https://github.com/rahuldess))
+
 ## [v2.0.0](https://github.com/auth0/omniauth-auth0/tree/v2.0.0) (2017-01-25)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.1...v2.0.0)
 
@@ -16,6 +39,31 @@ The `info` object will use the [OmniAuth schema](https://github.com/omniauth/omn
 - image: `picture` attribute in userinfo response.
 
 Also in `extra` will have in `raw_info` the full /userinfo response.
+
+**Fixed**
+- Use image attribute of omniauth instead of picture [\#45](https://github.com/auth0/omniauth-auth0/pull/45) ([hzalaz](https://github.com/hzalaz))
+- Rework strategy to handle OAuth and OIDC  [\#44](https://github.com/auth0/omniauth-auth0/pull/44) ([hzalaz](https://github.com/hzalaz))
+- lock v10 update, dependencies update [\#41](https://github.com/auth0/omniauth-auth0/pull/41) ([Amialc](https://github.com/Amialc))
+
+## [v1.4.2](https://github.com/auth0/omniauth-auth0/tree/v1.4.2) (2016-06-13)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.1...v1.4.2)
+
+**Added**
+- Link to OmniAuth site [\#36](https://github.com/auth0/omniauth-auth0/pull/36) ([jghaines](https://github.com/jghaines))
+- add ssl fix to RoR example [\#31](https://github.com/auth0/omniauth-auth0/pull/31) ([Amialc](https://github.com/Amialc))
+- Update LICENSE [\#17](https://github.com/auth0/omniauth-auth0/pull/17) ([aguerere](https://github.com/aguerere))
+
+**Changed**
+- Update lock to version 9 [\#34](https://github.com/auth0/omniauth-auth0/pull/34) ([Annyv2](https://github.com/Annyv2))
+- Update Gemfile [\#22](https://github.com/auth0/omniauth-auth0/pull/22) ([Annyv2](https://github.com/Annyv2))
+- Update lock [\#15](https://github.com/auth0/omniauth-auth0/pull/15) ([Annyv2](https://github.com/Annyv2))
+
+**Fixed**
+- Fix setup [\#38](https://github.com/auth0/omniauth-auth0/pull/38) ([deepak](https://github.com/deepak))
+- Added missing instruction [\#30](https://github.com/auth0/omniauth-auth0/pull/30) ([Annyv2](https://github.com/Annyv2))
+- Fixes undefined Auth0Lock issue [\#28](https://github.com/auth0/omniauth-auth0/pull/28) ([Annyv2](https://github.com/Annyv2))
+- Update Readme [\#27](https://github.com/auth0/omniauth-auth0/pull/27) ([Annyv2](https://github.com/Annyv2))
+
 
 ## [v1.4.1](https://github.com/auth0/omniauth-auth0/tree/v1.4.1) (2015-11-18)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v1.4.0...v1.4.1)
