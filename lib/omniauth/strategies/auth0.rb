@@ -9,11 +9,11 @@ module OmniAuth
     class Auth0 < OmniAuth::Strategies::OAuth2
       option :name, 'auth0'
 
-      args [
-             :client_id,
-             :client_secret,
-             :domain
-           ]
+      args %i[
+        client_id
+        client_secret
+        domain
+      ]
 
       # Setup client URLs used during authentication
       def client
@@ -36,16 +36,17 @@ module OmniAuth
         }
 
         if access_token.params
-          credentials.merge!({
+          credentials.merge!(
             'id_token' => access_token.params['id_token'],
             'token_type' => access_token.params['token_type'],
-            'refresh_token' => access_token.refresh_token,
-          })
+            'refresh_token' => access_token.refresh_token
+          )
         end
 
         # Make sure the ID token can be verified and decoded.
         auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
-        fail!(:invalid_id_token) unless auth0_jwt.decode(credentials['id_token']).length
+        jwt_decoded = auth0_jwt.decode(credentials['id_token'])
+        fail!(:invalid_id_token) unless jwt_decoded.length
 
         credentials
       end
