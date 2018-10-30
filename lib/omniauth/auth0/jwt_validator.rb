@@ -5,8 +5,8 @@ require 'omniauth'
 
 module OmniAuth
   module Auth0
+    # JWT Validator class
     class JWTValidator
-
       attr_accessor :issuer
 
       # Initializer
@@ -17,7 +17,7 @@ module OmniAuth
       def initialize(options)
         temp_domain = URI(options.domain)
         temp_domain = URI("https://#{options.domain}") unless temp_domain.scheme
-        @issuer = "#{temp_domain.to_s}/"
+        @issuer = "#{temp_domain}/"
 
         @client_id = options.client_id
         @client_secret = options.client_secret
@@ -31,30 +31,15 @@ module OmniAuth
         head = token_head(jwt)
 
         # Make sure the algorithm is supported and get the decode key.
+        decode_key = @client_secret
         if head[:alg] == 'RS256'
-          jwks_x5c = jwks_key(:x5c, head[:kid])
-          raise JWT::VerificationError, :jwks_missing_x5c if jwks_x5c.nil?
-          decode_key = jwks_public_cert(jwks_x5c.first)
-        elsif head[:alg] == 'HS256'
-          decode_key = @client_secret
-        else
+          decode_key = rs256_decode_key(head[:kid])
+        elsif head[:alg] != 'HS256'
           raise JWT::VerificationError, :id_token_alg_unsupported
         end
 
-        # Docs: https://github.com/jwt/ruby-jwt#add-custom-header-fields
-        decode_options = {
-          algorithm: head[:alg],
-          leeway: 30,
-          verify_expiration: true,
-          verify_iss: true,
-          iss: @issuer,
-          verify_aud: true,
-          aud: @client_id,
-          verify_not_before: true
-        }
-
         # Docs: https://github.com/jwt/ruby-jwt#algorithms-and-usage
-        JWT.decode(jwt, decode_key, true, decode_options)
+        JWT.decode(jwt, decode_key, true, decode_opts(head[:alg]))
       end
 
       # Get the decoded head segment from a JWT.
@@ -62,6 +47,7 @@ module OmniAuth
       def token_head(jwt)
         jwt_parts = jwt.split('.')
         return {} if blank?(jwt_parts) || blank?(jwt_parts[0])
+
         json_parse(Base64.decode64(jwt_parts[0]))
       end
 
@@ -81,11 +67,35 @@ module OmniAuth
       # @return nil|string
       def jwks_key(key, kid)
         return nil if blank?(jwks[:keys])
+
         matching_jwk = jwks[:keys].find { |jwk| jwk[:kid] == kid }
         matching_jwk[key] if matching_jwk
       end
 
       private
+
+      # Get the JWT decode options
+      # Docs: https://github.com/jwt/ruby-jwt#add-custom-header-fields
+      # @return hash
+      def decode_opts(alg)
+        {
+          algorithm: alg,
+          leeway: 30,
+          verify_expiration: true,
+          verify_iss: true,
+          iss: @issuer,
+          verify_aud: true,
+          aud: @client_id,
+          verify_not_before: true
+        }
+      end
+
+      def rs256_decode_key(kid)
+        jwks_x5c = jwks_key(:x5c, kid)
+        raise JWT::VerificationError, :jwks_missing_x5c if jwks_x5c.nil?
+
+        jwks_public_cert(jwks_x5c.first)
+      end
 
       # Get a JWKS from the issuer
       # @return void
@@ -105,7 +115,7 @@ module OmniAuth
       # @param json string - JSON to parse.
       # @return hash
       def json_parse(json)
-        JSON.parse(json, {:symbolize_names => true})
+        JSON.parse(json, symbolize_names: true)
       end
     end
   end

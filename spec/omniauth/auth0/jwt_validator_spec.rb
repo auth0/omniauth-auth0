@@ -3,7 +3,6 @@ require 'json'
 require 'jwt'
 
 describe OmniAuth::Auth0::JWTValidator do
-
   #
   # Reused data
   #
@@ -11,8 +10,8 @@ describe OmniAuth::Auth0::JWTValidator do
   let(:client_id) { 'CLIENT_ID' }
   let(:client_secret) { 'CLIENT_SECRET' }
   let(:domain) { 'samples.auth0.com' }
-  let(:future_timecode) { 32503680000 }
-  let(:past_timecode) { 303912000 }
+  let(:future_timecode) { 32_503_680_000 }
+  let(:past_timecode) { 303_912_000 }
   let(:jwks_kid) { 'NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg' }
 
   let(:rsa_private_key) do
@@ -24,7 +23,7 @@ describe OmniAuth::Auth0::JWTValidator do
       keys: [
         {
           kid: jwks_kid,
-          x5c: [ Base64.encode64(make_cert(rsa_private_key).to_der) ]
+          x5c: [Base64.encode64(make_cert(rsa_private_key).to_der)]
         }
       ]
     }.to_json
@@ -33,7 +32,7 @@ describe OmniAuth::Auth0::JWTValidator do
   let(:jwks) do
     current_dir = File.dirname(__FILE__)
     jwks_file = File.read("#{current_dir}/../../resources/jwks.json")
-    JSON.parse(jwks_file, {:symbolize_names => true})
+    JSON.parse(jwks_file, symbolize_names: true)
   end
 
   #
@@ -122,7 +121,7 @@ describe OmniAuth::Auth0::JWTValidator do
     let(:jwt_validator) do
       make_jwt_validator
     end
-    
+
     before do
       stub_jwks
       stub_dummy_jwks
@@ -146,7 +145,7 @@ describe OmniAuth::Auth0::JWTValidator do
 
     it 'should fail with invalid issuer' do
       payload = {
-        iss: "https://auth0.com/"
+        iss: 'https://auth0.com/'
       }
       token = make_hs256_token(payload)
       expect do
@@ -178,7 +177,7 @@ describe OmniAuth::Auth0::JWTValidator do
     it 'should fail with invalid audience' do
       payload = {
         iss: "https://#{domain}/",
-        aud: "Auth0"
+        aud: 'Auth0'
       }
       token = make_hs256_token(payload)
       expect do
@@ -234,10 +233,10 @@ describe OmniAuth::Auth0::JWTValidator do
   def make_jwt_validator(opt_domain = domain)
     options = Struct.new(:domain, :client_id, :client_secret)
     OmniAuth::Auth0::JWTValidator.new(options.new(
-      opt_domain,
-      client_id,
-      client_secret
-    ))
+                                        opt_domain,
+                                        client_id,
+                                        client_secret
+                                      ))
   end
 
   def make_hs256_token(payload = nil)
@@ -247,12 +246,12 @@ describe OmniAuth::Auth0::JWTValidator do
 
   def make_rs256_token(payload = nil)
     payload = { sub: 'abc123' } if payload.nil?
-    JWT.encode payload, rsa_private_key, 'RS256', { kid: jwks_kid }
+    JWT.encode payload, rsa_private_key, 'RS256', kid: jwks_kid
   end
 
   def make_cert(private_key)
     cert = OpenSSL::X509::Certificate.new
-    cert.issuer = OpenSSL::X509::Name.parse("/C=BE/O=Auth0/OU=Auth0/CN=Auth0")
+    cert.issuer = OpenSSL::X509::Name.parse('/C=BE/O=Auth0/OU=Auth0/CN=Auth0')
     cert.subject = cert.issuer
     cert.not_before = Time.now
     cert.not_after = Time.now + 365 * 24 * 60 * 60
@@ -264,12 +263,12 @@ describe OmniAuth::Auth0::JWTValidator do
     ef.subject_certificate = cert
     ef.issuer_certificate = cert
     cert.extensions = [
-      ef.create_extension("basicConstraints","CA:TRUE", true),
-      ef.create_extension("subjectKeyIdentifier", "hash")
+      ef.create_extension('basicConstraints', 'CA:TRUE', true),
+      ef.create_extension('subjectKeyIdentifier', 'hash')
     ]
     cert.add_extension ef.create_extension(
-      "authorityKeyIdentifier",
-      "keyid:always,issuer:always"
+      'authorityKeyIdentifier',
+      'keyid:always,issuer:always'
     )
 
     cert.sign private_key, OpenSSL::Digest::SHA1.new

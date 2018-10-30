@@ -3,8 +3,8 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'gem-release'
-gem 'rake'
 gem 'jwt'
+gem 'rake'
 
 group :development do
   gem 'dotenv'
@@ -19,8 +19,8 @@ group :test do
   gem 'listen', '~> 3.1.5'
   gem 'rack-test'
   gem 'rspec', '~> 3.5'
-  gem 'rubocop', '>= 0.30', platforms: [
-    :ruby_19, :ruby_20, :ruby_21, :ruby_22
+  gem 'rubocop', '>= 0.30', platforms: %i[
+    ruby_19 ruby_20 ruby_21 ruby_22
   ]
   gem 'simplecov'
   gem 'webmock'
