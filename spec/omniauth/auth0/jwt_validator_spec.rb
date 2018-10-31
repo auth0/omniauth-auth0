@@ -35,6 +35,8 @@ describe OmniAuth::Auth0::JWTValidator do
     JSON.parse(jwks_file, symbolize_names: true)
   end
 
+  Options = Struct.new(:domain, :client_id, :client_secret)
+
   #
   # Specs
   #
@@ -231,12 +233,13 @@ describe OmniAuth::Auth0::JWTValidator do
   private
 
   def make_jwt_validator(opt_domain = domain)
-    options = Struct.new(:domain, :client_id, :client_secret)
-    OmniAuth::Auth0::JWTValidator.new(options.new(
-                                        opt_domain,
-                                        client_id,
-                                        client_secret
-                                      ))
+    OmniAuth::Auth0::JWTValidator.new(
+      Options.new(
+        opt_domain,
+        client_id,
+        client_secret
+      )
+    )
   end
 
   def make_hs256_token(payload = nil)
