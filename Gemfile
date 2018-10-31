@@ -12,6 +12,7 @@ group :development do
   gem 'shotgun'
   gem 'sinatra'
   gem 'thin'
+  gem 'rubocop', require: false
 end
 
 group :test do
@@ -19,9 +20,6 @@ group :test do
   gem 'listen', '~> 3.1.5'
   gem 'rack-test'
   gem 'rspec', '~> 3.5'
-  gem 'rubocop', '>= 0.30', platforms: %i[
-    ruby_19 ruby_20 ruby_21 ruby_22
-  ]
   gem 'simplecov'
   gem 'webmock'
 end
