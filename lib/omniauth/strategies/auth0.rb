@@ -100,7 +100,11 @@ module OmniAuth
 
       # Parse the raw user info.
       def raw_info
-        userinfo_url = options.client_options.userinfo_url
+        userinfo_url = if options.audience.present?
+          options.audience
+        else
+          options.client_options.userinfo_url
+        end
         @raw_info ||= access_token.get(userinfo_url).parsed
       end
 
