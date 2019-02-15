@@ -1,2 +1,2 @@
-require 'omniauth-auth0/version' # rubocop:disable Style/FileName
+require 'omniauth-auth0/version'
 require 'omniauth/strategies/auth0'

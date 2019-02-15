@@ -9,10 +9,10 @@ gem 'rake'
 group :development do
   gem 'dotenv'
   gem 'pry'
+  gem 'rubocop', require: false
   gem 'shotgun'
   gem 'sinatra'
   gem 'thin'
-  gem 'rubocop', require: false
 end
 
 group :test do
