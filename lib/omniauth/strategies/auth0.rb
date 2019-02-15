@@ -2,11 +2,14 @@ require 'base64'
 require 'uri'
 require 'omniauth-oauth2'
 require 'omniauth/auth0/jwt_validator'
+require 'omniauth/auth0/telemetry'
 
 module OmniAuth
   module Strategies
     # Auth0 OmniAuth strategy
     class Auth0 < OmniAuth::Strategies::OAuth2
+      include OmniAuth::Auth0::Telemetry
+
       option :name, 'auth0'
 
       args %i[
@@ -72,11 +75,17 @@ module OmniAuth
       # Define the parameters used for the /authorize endpoint
       def authorize_params
         params = super
-        params['auth0Client'] = client_info
+        params['auth0Client'] = telemetry_encoded
         parse_query = Rack::Utils.parse_query(request.query_string)
         params['connection'] = parse_query['connection']
         params['prompt'] = parse_query['prompt']
         params
+      end
+
+      def build_access_token
+        telemetry_header = { 'Auth0-Client' => telemetry_encoded }
+        options.token_params[:headers] = telemetry_header
+        super
       end
 
       # Declarative override for the request phase of authentication
@@ -124,15 +133,6 @@ module OmniAuth
         domain_url = URI(options.domain)
         domain_url = URI("https://#{domain_url}") if domain_url.scheme.nil?
         domain_url.to_s
-      end
-
-      # Build the auth0Client URL parameter for metrics.
-      def client_info
-        client_info = JSON.dump(
-          name: 'omniauth-auth0',
-          version: OmniAuth::Auth0::VERSION
-        )
-        Base64.urlsafe_encode64(client_info)
       end
     end
   end
