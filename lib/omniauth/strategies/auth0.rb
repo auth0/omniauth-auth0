@@ -84,7 +84,7 @@ module OmniAuth
 
       def build_access_token
         telemetry_header = { 'Auth0-Client' => telemetry_encoded }
-        options.token_params[:headers] = telemetry_header
+        options.token_params.merge!(:headers => telemetry_header)
         super
       end
 

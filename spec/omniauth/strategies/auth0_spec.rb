@@ -79,6 +79,7 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('state')
       expect(redirect_url).to have_query('client_id')
       expect(redirect_url).to have_query('redirect_uri')
+      expect(redirect_url).to have_query('auth0Client')
     end
 
     it 'redirects to hosted login page' do
@@ -91,6 +92,7 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('client_id')
       expect(redirect_url).to have_query('redirect_uri')
       expect(redirect_url).to have_query('connection', 'abcd')
+      expect(redirect_url).to have_query('auth0Client')
     end
 
     describe 'callback' do
@@ -98,6 +100,7 @@ describe OmniAuth::Strategies::Auth0 do
       let(:expires_in) { 2000 }
       let(:token_type) { 'bearer' }
       let(:refresh_token) { 'refresh token' }
+      let(:telemetry_value) { Class.new.extend(OmniAuth::Auth0::Telemetry).telemetry_encoded }
 
       let(:user_id) { 'user identifier' }
       let(:state) { SecureRandom.hex(8) }
@@ -147,6 +150,7 @@ describe OmniAuth::Strategies::Auth0 do
 
       def stub_auth(body)
         stub_request(:post, 'https://samples.auth0.com/oauth/token')
+          .with(headers: { 'Auth0-Client' => telemetry_value })
           .to_return(
             headers: { 'Content-Type' => 'application/json' },
             body: MultiJson.encode(body)
