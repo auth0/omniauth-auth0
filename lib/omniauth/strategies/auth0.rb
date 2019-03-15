@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'base64'
 require 'uri'
 require 'omniauth-oauth2'
@@ -75,16 +77,14 @@ module OmniAuth
       # Define the parameters used for the /authorize endpoint
       def authorize_params
         params = super
-        params['auth0Client'] = telemetry_encoded
-        parse_query = Rack::Utils.parse_query(request.query_string)
-        params['connection'] = parse_query['connection']
-        params['prompt'] = parse_query['prompt']
+        parsed_query = Rack::Utils.parse_query(request.query_string)
+        params['connection'] = parsed_query['connection']
+        params['prompt'] = parsed_query['prompt']
         params
       end
 
       def build_access_token
-        telemetry_header = { 'Auth0-Client' => telemetry_encoded }
-        options.token_params.merge!(:headers => telemetry_header)
+        options.token_params[:headers] = { 'Auth0-Client' => telemetry_encoded }
         super
       end
 
