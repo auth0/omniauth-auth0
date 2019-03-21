@@ -1,6 +1,5 @@
 .ruby-version
 coverage
-Gemfile.lock
 *.gem
 
 .#*
