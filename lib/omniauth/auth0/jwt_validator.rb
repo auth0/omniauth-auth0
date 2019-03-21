@@ -12,12 +12,13 @@ module OmniAuth
       # Initializer
       # @param options object
       #   options.domain - Application domain.
+      #   options.issuer - Application issuer (optional).
       #   options.client_id - Application Client ID.
       #   options.client_secret - Application Client Secret.
       def initialize(options)
-        temp_domain = URI(options.domain)
-        temp_domain = URI("https://#{options.domain}") unless temp_domain.scheme
-        @issuer = "#{temp_domain}/"
+        # Use custom issuer if provided, otherwise use domain
+        @issuer = uri_string(options.issuer || options.domain)
+        @domain = uri_string(options.domain)
 
         @client_id = options.client_id
         @client_secret = options.client_secret
@@ -97,10 +98,10 @@ module OmniAuth
         jwks_public_cert(jwks_x5c.first)
       end
 
-      # Get a JWKS from the issuer
+      # Get a JWKS from the domain
       # @return void
       def jwks
-        jwks_uri = URI(@issuer + '.well-known/jwks.json')
+        jwks_uri = URI(@domain + '.well-known/jwks.json')
         @jwks ||= json_parse(Net::HTTP.get(jwks_uri))
       end
 
@@ -116,6 +117,15 @@ module OmniAuth
       # @return hash
       def json_parse(json)
         JSON.parse(json, symbolize_names: true)
+      end
+
+      # Parse a URI into the desired string format
+      # @param uri - the URI to parse
+      # @return string
+      def uri_string(uri)
+        temp_domain = URI(uri)
+        temp_domain = URI("https://#{uri}") unless uri.scheme
+        "#{temp_domain}/"
       end
     end
   end
