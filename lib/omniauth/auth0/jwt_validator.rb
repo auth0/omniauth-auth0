@@ -7,7 +7,7 @@ module OmniAuth
   module Auth0
     # JWT Validator class
     class JWTValidator
-      attr_accessor :issuer
+      attr_accessor :issuer, :domain
 
       # Initializer
       # @param options object
@@ -17,7 +17,11 @@ module OmniAuth
       #   options.client_secret - Application Client Secret.
       def initialize(options)
         # Use custom issuer if provided, otherwise use domain
-        @issuer = uri_string(options.issuer || options.domain)
+        @issuer = if options.respond_to?(:issuer)
+                    uri_string(options.issuer)
+                  else
+                    uri_string(options.domain)
+                  end
         @domain = uri_string(options.domain)
 
         @client_id = options.client_id
@@ -124,7 +128,7 @@ module OmniAuth
       # @return string
       def uri_string(uri)
         temp_domain = URI(uri)
-        temp_domain = URI("https://#{uri}") unless uri.scheme
+        temp_domain = URI("https://#{uri}") unless temp_domain.scheme
         "#{temp_domain}/"
       end
     end
