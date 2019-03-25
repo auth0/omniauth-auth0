@@ -10,6 +10,7 @@ describe OmniAuth::Auth0::JWTValidator do
   let(:client_id) { 'CLIENT_ID' }
   let(:client_secret) { 'CLIENT_SECRET' }
   let(:domain) { 'samples.auth0.com' }
+  let(:issuer) { 'samples.auth0.com' }
   let(:future_timecode) { 32_503_680_000 }
   let(:past_timecode) { 303_912_000 }
   let(:jwks_kid) { 'NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg' }
@@ -36,6 +37,7 @@ describe OmniAuth::Auth0::JWTValidator do
   end
 
   Options = Struct.new(:domain, :client_id, :client_secret)
+  OptionsWithIssuer = Struct.new(:domain, :issuer, :client_id, :client_secret)
 
   #
   # Specs
@@ -116,6 +118,36 @@ describe OmniAuth::Auth0::JWTValidator do
 
     it 'should return nil if the key ID is invalid' do
       expect(jwt_validator.jwks_key(:alg, "#{jwks_kid}_invalid")).to eq(nil)
+    end
+  end
+
+  describe 'JWT verifier custom issuer' do
+    context 'same as domain' do
+      let(:jwt_validator) do
+        make_jwt_validator(opt_issuer: issuer)
+      end
+
+      it 'should have the correct issuer' do
+        expect(jwt_validator.issuer).to eq('https://samples.auth0.com/')
+      end
+
+      it 'should have the correct domain' do
+        expect(jwt_validator.issuer).to eq('https://samples.auth0.com/')
+      end
+    end
+
+    context 'different from domain' do
+      let(:jwt_validator) do
+        make_jwt_validator(opt_issuer: 'different.auth0.com')
+      end
+
+      it 'should have the correct issuer' do
+        expect(jwt_validator.issuer).to eq('https://different.auth0.com/')
+      end
+
+      it 'should have the correct domain' do
+        expect(jwt_validator.domain).to eq('https://samples.auth0.com/')
+      end
     end
   end
 
@@ -225,21 +257,26 @@ describe OmniAuth::Auth0::JWTValidator do
         kid: jwks_kid
       }
       token = make_rs256_token(payload)
-      decoded_token = make_jwt_validator(domain).decode(token)
+      decoded_token = make_jwt_validator(opt_domain: domain).decode(token)
       expect(decoded_token.first['sub']).to eq(sub)
     end
   end
 
   private
 
-  def make_jwt_validator(opt_domain = domain)
-    OmniAuth::Auth0::JWTValidator.new(
-      Options.new(
-        opt_domain,
-        client_id,
-        client_secret
-      )
-    )
+  def make_jwt_validator(opt_domain: domain, opt_issuer: nil)
+    opts = if opt_issuer.nil?
+             Options.new(opt_domain, client_id, client_secret)
+           else
+             OptionsWithIssuer.new(
+               opt_domain,
+               opt_issuer,
+               client_id,
+               client_secret
+             )
+           end
+
+    OmniAuth::Auth0::JWTValidator.new(opts)
   end
 
   def make_hs256_token(payload = nil)
