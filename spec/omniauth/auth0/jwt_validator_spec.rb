@@ -10,7 +10,6 @@ describe OmniAuth::Auth0::JWTValidator do
   let(:client_id) { 'CLIENT_ID' }
   let(:client_secret) { 'CLIENT_SECRET' }
   let(:domain) { 'samples.auth0.com' }
-  let(:issuer) { 'samples.auth0.com' }
   let(:future_timecode) { 32_503_680_000 }
   let(:past_timecode) { 303_912_000 }
   let(:jwks_kid) { 'NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg' }
@@ -35,9 +34,6 @@ describe OmniAuth::Auth0::JWTValidator do
     jwks_file = File.read("#{current_dir}/../../resources/jwks.json")
     JSON.parse(jwks_file, symbolize_names: true)
   end
-
-  Options = Struct.new(:domain, :client_id, :client_secret)
-  OptionsWithIssuer = Struct.new(:domain, :issuer, :client_id, :client_secret)
 
   #
   # Specs
@@ -124,7 +120,7 @@ describe OmniAuth::Auth0::JWTValidator do
   describe 'JWT verifier custom issuer' do
     context 'same as domain' do
       let(:jwt_validator) do
-        make_jwt_validator(opt_issuer: issuer)
+        make_jwt_validator(opt_issuer: domain)
       end
 
       it 'should have the correct issuer' do
@@ -265,16 +261,12 @@ describe OmniAuth::Auth0::JWTValidator do
   private
 
   def make_jwt_validator(opt_domain: domain, opt_issuer: nil)
-    opts = if opt_issuer.nil?
-             Options.new(opt_domain, client_id, client_secret)
-           else
-             OptionsWithIssuer.new(
-               opt_domain,
-               opt_issuer,
-               client_id,
-               client_secret
-             )
-           end
+    opts = OpenStruct.new(
+      domain: opt_domain,
+      client_id: client_id,
+      client_secret: client_secret
+    )
+    opts[:issuer] = opt_issuer unless opt_issuer.nil?
 
     OmniAuth::Auth0::JWTValidator.new(opts)
   end

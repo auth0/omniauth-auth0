@@ -16,13 +16,11 @@ module OmniAuth
       #   options.client_id - Application Client ID.
       #   options.client_secret - Application Client Secret.
       def initialize(options)
-        # Use custom issuer if provided, otherwise use domain
-        @issuer = if options.respond_to?(:issuer)
-                    uri_string(options.issuer)
-                  else
-                    uri_string(options.domain)
-                  end
         @domain = uri_string(options.domain)
+
+        # Use custom issuer if provided, otherwise use domain
+        @issuer = @domain
+        @issuer = uri_string(options.issuer) if options.respond_to?(:issuer)
 
         @client_id = options.client_id
         @client_secret = options.client_secret
