@@ -20,9 +20,6 @@ jobs:
           paths:
             - vendor/bundle
       - run: bundle exec rake spec
-      - run: 
-          command: bash <(curl -s https://codecov.io/bash)
-          when: on_success
   snyk:
     docker:
       - image: snyk/snyk-cli:rubygems

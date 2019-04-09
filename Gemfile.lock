@@ -10,6 +10,10 @@ GEM
     addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
     ast (2.4.0)
+    codecov (0.1.14)
+      json
+      simplecov
+      url
     coderay (1.1.2)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
@@ -130,6 +134,7 @@ GEM
     thor (0.20.3)
     tilt (2.0.9)
     unicode-display_width (1.5.0)
+    url (0.3.2)
     webmock (3.5.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -140,6 +145,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.9)
+  codecov
   dotenv
   gem-release
   guard-rspec
