@@ -20,6 +20,7 @@ group :test do
   gem 'listen', '~> 3.1.5'
   gem 'rack-test'
   gem 'rspec', '~> 3.5'
+  gem 'codecov', require: false
   gem 'simplecov'
   gem 'webmock'
 end
