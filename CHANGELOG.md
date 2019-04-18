@@ -1,5 +1,19 @@
 # Change Log
 
+## [v2.2.0](https://github.com/auth0/omniauth-auth0/tree/v2.2.0) (2018-04-18)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.1.0...v2.2.0)
+
+**Closed issues**
+- It supports custom domain? [\#71](https://github.com/auth0/omniauth-auth0/issues/71)
+- Valid Login, No Details: email=nil image=nil name="github|38257089" nickname=nil [\#70](https://github.com/auth0/omniauth-auth0/issues/70)
+
+**Added**
+- Custom issuer [\#77](https://github.com/auth0/omniauth-auth0/pull/77) ([ryan-rosenfeld](https://github.com/ryan-rosenfeld))
+- Add telemetry to token endpoint [\#74](https://github.com/auth0/omniauth-auth0/pull/74) ([joshcanhelp](https://github.com/joshcanhelp))
+
+**Changed**
+- Remove telemetry from authorize URL [\#75](https://github.com/auth0/omniauth-auth0/pull/75) ([joshcanhelp](https://github.com/joshcanhelp))
+
 ## [v2.1.0](https://github.com/auth0/omniauth-auth0/tree/v2.1.0) (2018-10-30)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.0.0...v2.1.0)
 
