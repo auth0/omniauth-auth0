@@ -2,6 +2,8 @@
 
 An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating with [Auth0](https://auth0.com). This strategy is based on the [OmniAuth OAuth2](https://github.com/omniauth/omniauth-oauth2) strategy. 
 
+**Important security note:** The parent library for this strategy currently has an unresolved security issue. Please see the discussion, including mitigations for Rails and non-Rails applications, [here](https://github.com/auth0/omniauth-auth0/issues/82).
+
 [![CircleCI](https://img.shields.io/circleci/project/github/auth0/omniauth-auth0/master.svg)](https://circleci.com/gh/auth0/omniauth-auth0)
 [![codecov](https://codecov.io/gh/auth0/omniauth-auth0/branch/master/graph/badge.svg)](https://codecov.io/gh/auth0/omniauth-auth0)
 [![Gem Version](https://badge.fury.io/rb/omniauth-auth0.svg)](https://badge.fury.io/rb/omniauth-auth0)
@@ -29,6 +31,12 @@ Add the following line to your `Gemfile`:
 
 ```ruby
 gem 'omniauth-auth0'
+```
+
+If you're using this strategy with Rails, also add the following for CSRF protection:
+
+```ruby
+gem 'omniauth-rails_csrf_protection'
 ```
 
 Then install:
@@ -68,14 +76,7 @@ provider
   }
 ```
 
-... which will tell the strategy to send those parameters on every Auth request.
-
-Or you can do it for a specific authentication request by adding them to the query parameters of the redirect URL. Allowed parameters are `connection` and `prompt`:
-
-```ruby
-redirect_to '/auth/auth0?connection=google-oauth2'
-redirect_to '/auth/auth0?prompt=none'
-```
+... which will tell the strategy to send those parameters on every authentication request.
 
 ### Authentication hash
 
@@ -128,7 +129,6 @@ We appreciate feedback and contribution to this repo! Before you get started, pl
 - [This repo's contribution guide](CONTRIBUTING.md)
 
 ## Support + Feedback
-
 
 - Use [Community](https://community.auth0.com/) for usage, questions, specific cases.
 - Use [Issues](https://github.com/auth0/omniauth-auth0/issues) here for code-level support and bug reports.
