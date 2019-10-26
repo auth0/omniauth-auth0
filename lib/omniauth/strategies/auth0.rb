@@ -13,6 +13,7 @@ module OmniAuth
       include OmniAuth::Auth0::Telemetry
 
       option :name, 'auth0'
+      option :authorize_params_passthru, []
 
       args %i[
         client_id
@@ -78,9 +79,8 @@ module OmniAuth
       def authorize_params
         params = super
         parsed_query = Rack::Utils.parse_query(request.query_string)
-        params['connection'] = parsed_query['connection']
-        params['prompt'] = parsed_query['prompt']
-        params
+        passthru = ['connection', 'prompt'] | options.authorize_params_passthru
+        params.merge(parsed_query.select{ |key| passthru.include? key })
       end
 
       def build_access_token

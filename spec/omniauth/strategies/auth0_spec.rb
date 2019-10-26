@@ -97,6 +97,21 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('auth0Client')
     end
 
+    it 'preserves parameters specified in the config' do
+      @app = make_application(authorize_params_passthru: ['foo'])
+      get 'auth/auth0?connection=abcd&foo=bazzle&bar=bizzle'
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to start_with('https://samples.auth0.com/authorize')
+      expect(redirect_url).to have_query('response_type', 'code')
+      expect(redirect_url).to have_query('state')
+      expect(redirect_url).to have_query('client_id')
+      expect(redirect_url).to have_query('redirect_uri')
+      expect(redirect_url).to have_query('connection', 'abcd')
+      expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).to have_query('foo', 'bazzle')
+      expect(redirect_url).not_to have_query('bar')
+    end
+
     describe 'callback' do
       let(:access_token) { 'access token' }
       let(:expires_in) { 2000 }

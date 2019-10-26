@@ -75,8 +75,29 @@ provider
     }
   }
 ```
-
 ... which will tell the strategy to send those parameters on every authentication request.
+
+#### Passthru parameters
+
+To passthru request parameters the to login, you can whitelist them when you register the provider:
+
+```ruby
+provider
+  :auth0,
+  ENV['AUTH0_CLIENT_ID'],
+  ENV['AUTH0_CLIENT_SECRET'],
+  ENV['AUTH0_DOMAIN'],
+  {
+    authorize_params: {
+      scope: 'openid read:users write:order',
+      audience: 'https://mydomain/api'
+    },
+    authorize_params_passthru: ['param1']
+  }
+```
+
+... which will tell the strategy to send those parameters on every authentication request if they
+exist in the request
 
 ### Authentication hash
 
