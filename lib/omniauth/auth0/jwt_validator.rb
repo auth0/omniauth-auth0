@@ -127,7 +127,8 @@ module OmniAuth
       def uri_string(uri)
         temp_domain = URI(uri)
         temp_domain = URI("https://#{uri}") unless temp_domain.scheme
-        "#{temp_domain}/"
+        temp_domain = "#{temp_domain}/" unless temp_domain.to_s.end_with?('/')
+        temp_domain.to_s
       end
     end
   end
