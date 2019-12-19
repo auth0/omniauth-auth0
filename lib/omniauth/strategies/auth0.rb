@@ -78,7 +78,7 @@ module OmniAuth
       def authorize_params
         params = super
         parsed_query = Rack::Utils.parse_query(request.query_string)
-        ['connection', 'prompt'].each do |key|
+        %w[connection prompt].each do |key|
           params[key] = parsed_query[key] if parsed_query.key?(key)
         end
         params
