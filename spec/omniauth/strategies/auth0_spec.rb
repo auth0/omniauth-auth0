@@ -82,6 +82,8 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('client_id')
       expect(redirect_url).to have_query('redirect_uri')
       expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('prompt')
     end
 
     it 'redirects to hosted login page' do
@@ -95,6 +97,21 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('redirect_uri')
       expect(redirect_url).to have_query('connection', 'abcd')
       expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).not_to have_query('prompt')
+    end
+
+    it 'redirects to hosted login page with prompt=login' do
+      get 'auth/auth0?prompt=login'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to start_with('https://samples.auth0.com/authorize')
+      expect(redirect_url).to have_query('response_type', 'code')
+      expect(redirect_url).to have_query('state')
+      expect(redirect_url).to have_query('client_id')
+      expect(redirect_url).to have_query('redirect_uri')
+      expect(redirect_url).to have_query('prompt', 'login')
+      expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).not_to have_query('connection')
     end
 
     describe 'callback' do
@@ -300,7 +317,7 @@ RSpec::Matchers.define :have_query do |key, value|
     uri = redirect_uri(actual)
     query = query(uri)
     if value.nil?
-      query[key].length == 1
+      query.key?(key)
     else
       query[key] == [value]
     end
