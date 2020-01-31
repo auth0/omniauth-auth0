@@ -48,10 +48,12 @@ module OmniAuth
           )
         end
 
-        # Make sure the ID token can be verified and decoded.
-        auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
-        jwt_decoded = auth0_jwt.decode(credentials['id_token'])
-        fail!(:invalid_id_token) unless jwt_decoded.length
+        if credentials['id_token']
+          # Make sure the ID token can be verified and decoded.
+          auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
+          jwt_decoded = auth0_jwt.decode(credentials['id_token'])
+          fail!(:invalid_id_token) unless jwt_decoded.length
+        end
 
         credentials
       end
