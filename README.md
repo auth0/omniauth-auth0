@@ -71,7 +71,8 @@ provider
   {
     authorize_params: {
       scope: 'openid read:users write:order',
-      audience: 'https://mydomain/api'
+      audience: 'https://mydomain/api',
+      max_age: 3600 # time in seconds authentication is valid
     }
   }
 ```
