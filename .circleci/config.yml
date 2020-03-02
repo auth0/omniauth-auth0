@@ -21,30 +21,8 @@ jobs:
           paths:
             - vendor/bundle
       - run: bundle exec rake spec
-  snyk:
-    docker:
-      - image: snyk/snyk-cli:rubygems
-    steps:
-      - attach_workspace:
-          at: .
-      - run: snyk test
-      - run:
-          command: |
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]
-            then
-            snyk monitor --org=auth0-sdks
-            fi
-          when: always
 
 workflows:
   tests:
     jobs:
       - run-tests
-  snyk:
-    jobs:
-      - run-tests
-      - snyk:
-          # Must define SNYK_TOKEN env
-          context: snyk-env 
-          requires: 
-            - run-tests
