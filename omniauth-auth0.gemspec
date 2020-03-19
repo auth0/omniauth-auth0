@@ -16,8 +16,6 @@ OmniAuth is a library that standardizes multi-provider authentication for web ap
 omniauth-auth0 is the OmniAuth strategy for Auth0.
 }
 
-  s.rubyforge_project = 'omniauth-auth0'
-
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split('\n').map{ |f| File.basename(f) }
