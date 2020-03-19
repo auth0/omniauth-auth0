@@ -2,6 +2,7 @@ require 'base64'
 require 'uri'
 require 'json'
 require 'omniauth'
+require 'omniauth/auth0/errors'
 
 module OmniAuth
   module Auth0
