@@ -6,6 +6,7 @@ require 'securerandom'
 require 'omniauth-oauth2'
 require 'omniauth/auth0/jwt_validator'
 require 'omniauth/auth0/telemetry'
+require 'omniauth/auth0/errors'
 
 module OmniAuth
   module Strategies
