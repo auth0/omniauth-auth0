@@ -1,10 +1,10 @@
 # Change Log
 
 ## [v2.3.0](https://github.com/auth0/omniauth-auth0/tree/v2.3.0) (2020-03-06)
-[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.3.0...v2.2.0)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.2.0...v2.3.0)
 
 **Added**
-- Improved OIDC Compliance [\#74](https://github.com/auth0/omniauth-auth0/pull/92) ([davidpatrick](https://github.com/davidpatrick))
+- Improved OIDC Compliance [\#92](https://github.com/auth0/omniauth-auth0/pull/92) ([davidpatrick](https://github.com/davidpatrick))
 
 ## [v2.2.0](https://github.com/auth0/omniauth-auth0/tree/v2.2.0) (2018-04-18)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.1.0...v2.2.0)

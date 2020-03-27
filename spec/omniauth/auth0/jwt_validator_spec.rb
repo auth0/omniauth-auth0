@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'json'
 require 'jwt'
-require 'omniauth/auth0/errors'
 
 describe OmniAuth::Auth0::JWTValidator do
   #
