@@ -100,6 +100,15 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('prompt')
     end
 
+    it 'redirects to the hosted login page with connection_scope' do
+      get 'auth/auth0?connection_scope=identity_provider_scope'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to start_with('https://samples.auth0.com/authorize')
+      expect(redirect_url)
+        .to have_query('connection_scope', 'identity_provider_scope')
+    end
+
     it 'redirects to hosted login page with prompt=login' do
       get 'auth/auth0?prompt=login'
       expect(last_response.status).to eq(302)
