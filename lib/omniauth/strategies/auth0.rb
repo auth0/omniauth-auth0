@@ -86,7 +86,7 @@ module OmniAuth
       def authorize_params
         params = super
         parsed_query = Rack::Utils.parse_query(request.query_string)
-        %w[connection prompt].each do |key|
+        %w[connection connection_scope prompt].each do |key|
           params[key] = parsed_query[key] if parsed_query.key?(key)
         end
 
@@ -94,7 +94,7 @@ module OmniAuth
         params[:nonce] = SecureRandom.hex
         # Generate leeway if none exists
         params[:leeway] = 60 unless params[:leeway]
-        
+
         # Store authorize params in the session for token verification
         session['authorize_params'] = params
 
