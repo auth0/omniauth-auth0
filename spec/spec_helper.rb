@@ -31,6 +31,7 @@ RSpec.configure do |config|
     client_id = 'CLIENT_ID'
     secret = 'CLIENT_SECRET'
     domain = 'samples.auth0.com'
+    key_host = 'custom-keys.business.com'
     client_id = options.delete(:client_id) if options.key?(:client_id)
     secret = options.delete(:client_secret) if options.key?(:client_secret)
     domain = options.delete(:domain) if options.key?(:domain)
@@ -43,7 +44,7 @@ RSpec.configure do |config|
       end
 
       use OmniAuth::Builder do
-        provider :auth0, client_id, secret, domain, options
+        provider :auth0, client_id, secret, domain, key_host, options
       end
 
       get '/auth/auth0/callback' do

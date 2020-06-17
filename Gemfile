@@ -16,6 +16,7 @@ group :development do
 end
 
 group :test do
+  gem 'pry'
   gem 'guard-rspec', require: false
   gem 'listen', '~> 3.1.5'
   gem 'rack-test'

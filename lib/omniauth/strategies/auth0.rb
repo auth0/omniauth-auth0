@@ -19,6 +19,7 @@ module OmniAuth
         client_id
         client_secret
         domain
+        key_host
       ]
 
       # Setup client URLs used during authentication
