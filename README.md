@@ -1,5 +1,10 @@
 # OmniAuth Auth0
 
+## FORK ADDITIONS
+1. PASSTHRU PARAMETERS
+2. CUSTOM JWK HOST DOMAIN
+____
+
 An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating with [Auth0](https://auth0.com). This strategy is based on the [OmniAuth OAuth2](https://github.com/omniauth/omniauth-oauth2) strategy. 
 
 **Important security note:** The parent library for this strategy currently has an unresolved security issue. Please see the discussion, including mitigations for Rails and non-Rails applications, [here](https://github.com/auth0/omniauth-auth0/issues/82).
@@ -68,6 +73,7 @@ provider
   ENV['AUTH0_CLIENT_ID'],
   ENV['AUTH0_CLIENT_SECRET'],
   ENV['AUTH0_DOMAIN'],
+  ENV['AUTH0_KEY_HOST'],
   {
     authorize_params: {
       scope: 'openid read:users write:order',

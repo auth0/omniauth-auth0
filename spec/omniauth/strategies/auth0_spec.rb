@@ -11,6 +11,7 @@ describe OmniAuth::Strategies::Auth0 do
   let(:client_id) { 'CLIENT_ID' }
   let(:client_secret) { 'CLIENT_SECRET' }
   let(:domain_url) { 'https://samples.auth0.com' }
+  let(:key_host) { 'custom-keys.business.com' }
   let(:application) do
     lambda do
       [200, {}, ['Hello.']]
@@ -21,7 +22,8 @@ describe OmniAuth::Strategies::Auth0 do
       application,
       client_id,
       client_secret,
-      domain_url
+      domain_url,
+      key_host
     )
   end
 

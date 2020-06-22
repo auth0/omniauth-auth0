@@ -17,6 +17,7 @@ module OmniAuth
       #   options.client_secret - Application Client Secret.
       def initialize(options)
         @domain = uri_string(options.domain)
+        @key_host_uri = uri_string(options.key_host)
 
         # Use custom issuer if provided, otherwise use domain
         @issuer = @domain
@@ -103,7 +104,7 @@ module OmniAuth
       # Get a JWKS from the domain
       # @return void
       def jwks
-        jwks_uri = URI(@domain + '.well-known/jwks.json')
+        jwks_uri = URI(@key_host_uri + '.well-known/jwks.json')
         @jwks ||= json_parse(Net::HTTP.get(jwks_uri))
       end
 

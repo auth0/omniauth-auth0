@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'json'
 require 'jwt'
+require 'byebug'
 
 describe OmniAuth::Auth0::JWTValidator do
   #
@@ -10,6 +11,7 @@ describe OmniAuth::Auth0::JWTValidator do
   let(:client_id) { 'CLIENT_ID' }
   let(:client_secret) { 'CLIENT_SECRET' }
   let(:domain) { 'samples.auth0.com' }
+  let(:key_host) { 'custom-keys.business.com' }
   let(:future_timecode) { 32_503_680_000 }
   let(:past_timecode) { 303_912_000 }
   let(:jwks_kid) { 'NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg' }
@@ -253,18 +255,20 @@ describe OmniAuth::Auth0::JWTValidator do
         kid: jwks_kid
       }
       token = make_rs256_token(payload)
-      decoded_token = make_jwt_validator(opt_domain: domain).decode(token)
+      # Setting #opt_key_host equal to domain, so that it uses the correct stub for jwks.
+      decoded_token = make_jwt_validator(opt_domain: domain, opt_key_host: domain).decode(token)
       expect(decoded_token.first['sub']).to eq(sub)
     end
   end
 
   private
 
-  def make_jwt_validator(opt_domain: domain, opt_issuer: nil)
+  def make_jwt_validator(opt_key_host: key_host, opt_domain: domain, opt_issuer: nil)
     opts = OpenStruct.new(
       domain: opt_domain,
       client_id: client_id,
-      client_secret: client_secret
+      client_secret: client_secret,
+      key_host: opt_key_host
     )
     opts[:issuer] = opt_issuer unless opt_issuer.nil?
 
@@ -307,7 +311,7 @@ describe OmniAuth::Auth0::JWTValidator do
   end
 
   def stub_jwks
-    stub_request(:get, 'https://samples.auth0.com/.well-known/jwks.json')
+    stub_request(:get, "https://#{key_host}/.well-known/jwks.json")
       .to_return(
         headers: { 'Content-Type' => 'application/json' },
         body: jwks.to_json,
