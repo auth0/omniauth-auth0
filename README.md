@@ -2,7 +2,7 @@
 
 An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating with [Auth0](https://auth0.com). This strategy is based on the [OmniAuth OAuth2](https://github.com/omniauth/omniauth-oauth2) strategy. 
 
-**Important security note:** The parent library for this strategy currently has an unresolved security issue. Please see the discussion, including mitigations for Rails and non-Rails applications, [here](https://github.com/auth0/omniauth-auth0/issues/82).
+> **Important security note:** This solution uses a 3rd party library with an unresolved [security issue(s)](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-9284). Please review the details of the vulnerability, including [Auth0](https://github.com/auth0/omniauth-auth0/issues/82 ) and other recommended [mitigations](https://github.com/omniauth/omniauth/wiki/Resolving-CVE-2015-9284), before implementing the solution.
 
 [![CircleCI](https://img.shields.io/circleci/project/github/auth0/omniauth-auth0/master.svg)](https://circleci.com/gh/auth0/omniauth-auth0)
 [![codecov](https://codecov.io/gh/auth0/omniauth-auth0/branch/master/graph/badge.svg)](https://codecov.io/gh/auth0/omniauth-auth0)
