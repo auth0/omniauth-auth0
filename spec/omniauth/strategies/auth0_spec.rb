@@ -83,7 +83,9 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('redirect_uri')
       expect(redirect_url).not_to have_query('auth0Client')
       expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('connection_scope')
       expect(redirect_url).not_to have_query('prompt')
+      expect(redirect_url).not_to have_query('screen_hint')
     end
 
     it 'redirects to hosted login page' do
@@ -97,7 +99,9 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('redirect_uri')
       expect(redirect_url).to have_query('connection', 'abcd')
       expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).not_to have_query('connection_scope')
       expect(redirect_url).not_to have_query('prompt')
+      expect(redirect_url).not_to have_query('screen_hint')
     end
 
     it 'redirects to the hosted login page with connection_scope' do
