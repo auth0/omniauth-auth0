@@ -1,5 +1,18 @@
 # Change Log
 
+## [v2.4.0](https://github.com/auth0/omniauth-auth0/tree/v2.4.0) (2020-09-22)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.3.1...v2.4.0)
+
+**Security**
+- Bump rack from 2.2.2 to 2.2.3 [\#107](https://github.com/auth0/omniauth-auth0/pull/107) ([dependabot](https://github.com/dependabot))
+- Update dependencies [\#100](https://github.com/auth0/omniauth-auth0/pull/100) ([Albalmaceda](https://github.com/Albalmaceda))
+
+**Added**
+- Add support for screen_hint=signup param [\#103](https://github.com/auth0/omniauth-auth0/pull/103) ([bbean86](https://github.com/bbean86))
+- Add support for `connection_scope` in params [\#99](https://github.com/auth0/omniauth-auth0/pull/99) ([felixclack](https://github.com/felixclack))
+
+
 ## [v2.3.1](https://github.com/auth0/omniauth-auth0/tree/v2.3.1) (2020-03-27)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.3.0...v2.3.1)
