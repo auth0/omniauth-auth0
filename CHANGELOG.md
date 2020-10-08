@@ -1,5 +1,13 @@
 # Change Log
 
+## [v2.4.1](https://github.com/auth0/omniauth-auth0/tree/v2.4.1) (2020-10-08)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.0...v2.4.1)
+
+**Fixed**
+- Verify the JWT Signature [\#109](https://github.com/auth0/omniauth-auth0/pull/109) ([jimmyjames](https://github.com/jimmyjames))
+
+
 ## [v2.4.0](https://github.com/auth0/omniauth-auth0/tree/v2.4.0) (2020-09-22)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.3.1...v2.4.0)
