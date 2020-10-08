@@ -28,17 +28,24 @@ module OmniAuth
         @client_secret = options.client_secret
       end
 
+      # Verify a token's signature. Only tokens signed with the RS256 or HS256 signatures are supported.
+      # @return array - The token's key and signing algorithm
       def verify_signature(jwt)
         head = token_head(jwt)
 
         # Make sure the algorithm is supported and get the decode key.
         if head[:alg] == 'RS256'
-          [rs256_decode_key(head[:kid]), head[:alg]]
+          key, alg = [rs256_decode_key(head[:kid]), head[:alg]]
         elsif head[:alg] == 'HS256'
-          [@client_secret, head[:alg]]
+          key, alg = [@client_secret, head[:alg]]
         else
           raise OmniAuth::Auth0::TokenValidationError.new("Signature algorithm of #{head[:alg]} is not supported. Expected the ID token to be signed with RS256 or HS256")
         end
+
+        # Call decode to verify the signature
+        JWT.decode(jwt, key, true, decode_opts(alg))
+
+        return key, alg
       end
 
       # Verify a JWT.
@@ -93,11 +100,27 @@ module OmniAuth
       end
 
       private
+      # Get the JWT decode options. We disable the claim checks since we perform our claim validation logic
+      # Docs: https://github.com/jwt/ruby-jwt
+      # @return hash
+      def decode_opts(alg)
+        {
+          algorithm: alg,
+          verify_expiration: false,
+          verify_iat: false,
+          verify_iss: false,
+          verify_aud: false,
+          verify_jti: false,
+          verify_subj: false,
+          verify_not_before: false
+        }
+      end
+
       def rs256_decode_key(kid)
         jwks_x5c = jwks_key(:x5c, kid)
 
         if jwks_x5c.nil?
-          raise OmniAuth::Auth0::TokenValidationError.new("Could not find a public key for Key ID (kid) '#{kid}''")
+          raise OmniAuth::Auth0::TokenValidationError.new("Could not find a public key for Key ID (kid) '#{kid}'")
         end
 
         jwks_public_cert(jwks_x5c.first)
