@@ -2,9 +2,11 @@
 
 require 'base64'
 require 'uri'
+require 'securerandom'
 require 'omniauth-oauth2'
 require 'omniauth/auth0/jwt_validator'
 require 'omniauth/auth0/telemetry'
+require 'omniauth/auth0/errors'
 
 module OmniAuth
   module Strategies
@@ -48,10 +50,16 @@ module OmniAuth
           )
         end
 
-        # Make sure the ID token can be verified and decoded.
-        auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
-        jwt_decoded = auth0_jwt.decode(credentials['id_token'])
-        fail!(:invalid_id_token) unless jwt_decoded.length
+        # Retrieve and remove authorization params from the session
+        session_authorize_params = session['authorize_params'] || {}
+        session.delete('authorize_params')
+
+        auth_scope = session_authorize_params[:scope]
+        if auth_scope.respond_to?(:include?) && auth_scope.include?('openid')
+          # Make sure the ID token can be verified and decoded.
+          auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
+          auth0_jwt.verify(credentials['id_token'], session_authorize_params)
+        end
 
         credentials
       end
@@ -78,8 +86,18 @@ module OmniAuth
       def authorize_params
         params = super
         parsed_query = Rack::Utils.parse_query(request.query_string)
-        params['connection'] = parsed_query['connection']
-        params['prompt'] = parsed_query['prompt']
+        %w[connection connection_scope prompt screen_hint].each do |key|
+          params[key] = parsed_query[key] if parsed_query.key?(key)
+        end
+
+        # Generate nonce
+        params[:nonce] = SecureRandom.hex
+        # Generate leeway if none exists
+        params[:leeway] = 60 unless params[:leeway]
+
+        # Store authorize params in the session for token verification
+        session['authorize_params'] = params
+
         params
       end
 
@@ -103,6 +121,12 @@ module OmniAuth
           # All checks pass, run the Oauth2 request_phase method.
           super
         end
+      end
+
+      def callback_phase
+        super
+      rescue OmniAuth::Auth0::TokenValidationError => e
+        fail!(:token_validation_error, e)
       end
 
       private

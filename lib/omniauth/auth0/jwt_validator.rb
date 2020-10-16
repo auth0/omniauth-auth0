@@ -2,6 +2,7 @@ require 'base64'
 require 'uri'
 require 'json'
 require 'omniauth'
+require 'omniauth/auth0/errors'
 
 module OmniAuth
   module Auth0
@@ -15,7 +16,8 @@ module OmniAuth
       #   options.issuer - Application issuer (optional).
       #   options.client_id - Application Client ID.
       #   options.client_secret - Application Client Secret.
-      def initialize(options)
+
+      def initialize(options, authorize_params = {})
         @domain = uri_string(options.domain)
 
         # Use custom issuer if provided, otherwise use domain
@@ -26,23 +28,45 @@ module OmniAuth
         @client_secret = options.client_secret
       end
 
-      # Decode a JWT.
-      # @param jwt string - JWT to decode.
-      # @return hash - The decoded token, if there were no exceptions.
-      # @see https://github.com/jwt/ruby-jwt
-      def decode(jwt)
+      # Verify a token's signature. Only tokens signed with the RS256 or HS256 signatures are supported.
+      # @return array - The token's key and signing algorithm
+      def verify_signature(jwt)
         head = token_head(jwt)
 
         # Make sure the algorithm is supported and get the decode key.
-        decode_key = @client_secret
         if head[:alg] == 'RS256'
-          decode_key = rs256_decode_key(head[:kid])
-        elsif head[:alg] != 'HS256'
-          raise JWT::VerificationError, :id_token_alg_unsupported
+          key, alg = [rs256_decode_key(head[:kid]), head[:alg]]
+        elsif head[:alg] == 'HS256'
+          key, alg = [@client_secret, head[:alg]]
+        else
+          raise OmniAuth::Auth0::TokenValidationError.new("Signature algorithm of #{head[:alg]} is not supported. Expected the ID token to be signed with RS256 or HS256")
         end
 
-        # Docs: https://github.com/jwt/ruby-jwt#algorithms-and-usage
-        JWT.decode(jwt, decode_key, true, decode_opts(head[:alg]))
+        # Call decode to verify the signature
+        JWT.decode(jwt, key, true, decode_opts(alg))
+
+        return key, alg
+      end
+
+      # Verify a JWT.
+      # @param jwt string - JWT to verify.
+      # @param authorize_params hash - Authorization params to verify on the JWT
+      # @return hash - The verified token, if there were no exceptions.
+      def verify(jwt, authorize_params = {})
+        if !jwt
+          raise OmniAuth::Auth0::TokenValidationError.new('ID token is required but missing')
+        end
+
+        parts = jwt.split('.')
+        if parts.length != 3
+          raise OmniAuth::Auth0::TokenValidationError.new('ID token could not be decoded')
+        end
+
+        key, alg = verify_signature(jwt)
+        id_token, header = JWT.decode(jwt, key, false)
+        verify_claims(id_token, authorize_params)
+
+        return id_token
       end
 
       # Get the decoded head segment from a JWT.
@@ -76,26 +100,28 @@ module OmniAuth
       end
 
       private
-
-      # Get the JWT decode options
-      # Docs: https://github.com/jwt/ruby-jwt#add-custom-header-fields
+      # Get the JWT decode options. We disable the claim checks since we perform our claim validation logic
+      # Docs: https://github.com/jwt/ruby-jwt
       # @return hash
       def decode_opts(alg)
         {
           algorithm: alg,
-          leeway: 30,
-          verify_expiration: true,
-          verify_iss: true,
-          iss: @issuer,
-          verify_aud: true,
-          aud: @client_id,
-          verify_not_before: true
+          verify_expiration: false,
+          verify_iat: false,
+          verify_iss: false,
+          verify_aud: false,
+          verify_jti: false,
+          verify_subj: false,
+          verify_not_before: false
         }
       end
 
       def rs256_decode_key(kid)
         jwks_x5c = jwks_key(:x5c, kid)
-        raise JWT::VerificationError, :jwks_missing_x5c if jwks_x5c.nil?
+
+        if jwks_x5c.nil?
+          raise OmniAuth::Auth0::TokenValidationError.new("Could not find a public key for Key ID (kid) '#{kid}'")
+        end
 
         jwks_public_cert(jwks_x5c.first)
       end
@@ -129,6 +155,97 @@ module OmniAuth
         temp_domain = URI("https://#{uri}") unless temp_domain.scheme
         temp_domain = temp_domain.to_s
         temp_domain.end_with?('/') ? temp_domain : "#{temp_domain}/"
+      end
+
+      def verify_claims(id_token, authorize_params)
+        leeway = authorize_params[:leeway] || 60
+        max_age = authorize_params[:max_age]
+        nonce = authorize_params[:nonce]
+
+        verify_iss(id_token)
+        verify_sub(id_token)
+        verify_aud(id_token)
+        verify_expiration(id_token, leeway)
+        verify_iat(id_token)
+        verify_nonce(id_token, nonce)
+        verify_azp(id_token)
+        verify_auth_time(id_token, leeway, max_age)
+      end
+
+      def verify_iss(id_token)
+        issuer = id_token['iss']
+        if !issuer
+          raise OmniAuth::Auth0::TokenValidationError.new("Issuer (iss) claim must be a string present in the ID token")
+        elsif @issuer != issuer
+          raise OmniAuth::Auth0::TokenValidationError.new("Issuer (iss) claim mismatch in the ID token, expected (#{@issuer}), found (#{id_token['iss']})")
+        end
+      end
+
+      def verify_sub(id_token)
+        subject = id_token['sub']
+        if !subject || !subject.is_a?(String) || subject.empty?
+          raise OmniAuth::Auth0::TokenValidationError.new('Subject (sub) claim must be a string present in the ID token')
+        end
+      end
+
+      def verify_aud(id_token)
+        audience = id_token['aud']
+        if !audience || !(audience.is_a?(String) || audience.is_a?(Array))
+          raise OmniAuth::Auth0::TokenValidationError.new("Audience (aud) claim must be a string or array of strings present in the ID token")
+        elsif audience.is_a?(Array) && !audience.include?(@client_id)
+          raise OmniAuth::Auth0::TokenValidationError.new("Audience (aud) claim mismatch in the ID token; expected #{@client_id} but was not one of #{audience.join(', ')}")
+        elsif audience.is_a?(String) && audience != @client_id
+          raise OmniAuth::Auth0::TokenValidationError.new("Audience (aud) claim mismatch in the ID token; expected #{@client_id} but found #{audience}")
+        end
+      end
+
+      def verify_expiration(id_token, leeway)
+        expiration = id_token['exp']
+        if !expiration || !expiration.is_a?(Integer)
+          raise OmniAuth::Auth0::TokenValidationError.new("Expiration time (exp) claim must be a number present in the ID token")
+        elsif expiration <= Time.now.to_i - leeway
+          raise OmniAuth::Auth0::TokenValidationError.new("Expiration time (exp) claim error in the ID token; current time (#{Time.now}) is after expiration time (#{Time.at(expiration + leeway)})")
+        end
+      end
+
+      def verify_iat(id_token)
+        if !id_token['iat']
+          raise OmniAuth::Auth0::TokenValidationError.new("Issued At (iat) claim must be a number present in the ID token")
+        end
+      end
+
+      def verify_nonce(id_token, nonce)
+        if nonce
+          received_nonce = id_token['nonce']
+          if !received_nonce
+            raise OmniAuth::Auth0::TokenValidationError.new("Nonce (nonce) claim must be a string present in the ID token")
+          elsif nonce != received_nonce
+            raise OmniAuth::Auth0::TokenValidationError.new("Nonce (nonce) claim value mismatch in the ID token; expected (#{nonce}), found (#{received_nonce})")
+          end
+        end
+      end
+
+      def verify_azp(id_token)
+        audience = id_token['aud']
+        if audience.is_a?(Array) && audience.length > 1
+          azp = id_token['azp']
+          if !azp || !azp.is_a?(String)
+            raise OmniAuth::Auth0::TokenValidationError.new("Authorized Party (azp) claim must be a string present in the ID token when Audience (aud) claim has multiple values")
+          elsif azp != @client_id
+            raise OmniAuth::Auth0::TokenValidationError.new("Authorized Party (azp) claim mismatch in the ID token; expected (#{@client_id}), found (#{azp})")
+          end
+        end
+      end
+
+      def verify_auth_time(id_token, leeway, max_age)
+        if max_age
+          auth_time = id_token['auth_time']
+          if !auth_time || !auth_time.is_a?(Integer)
+            raise OmniAuth::Auth0::TokenValidationError.new("Authentication Time (auth_time) claim must be a number present in the ID token when Max Age (max_age) is specified")
+          elsif Time.now.to_i >  auth_time + max_age + leeway;
+            raise OmniAuth::Auth0::TokenValidationError.new("Authentication Time (auth_time) claim in the ID token indicates that too much time has passed since the last end-user authentication. Current time (#{Time.now}) is after last auth time (#{Time.at(auth_time + max_age + leeway)})")
+          end
+        end
       end
     end
   end

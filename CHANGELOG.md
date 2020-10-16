@@ -1,5 +1,41 @@
 # Change Log
 
+## [v2.4.1](https://github.com/auth0/omniauth-auth0/tree/v2.4.1) (2020-10-08)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.0...v2.4.1)
+
+**Fixed**
+- Verify the JWT Signature [\#109](https://github.com/auth0/omniauth-auth0/pull/109) ([jimmyjames](https://github.com/jimmyjames))
+
+
+## [v2.4.0](https://github.com/auth0/omniauth-auth0/tree/v2.4.0) (2020-09-22)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.3.1...v2.4.0)
+
+**Security**
+- Bump rack from 2.2.2 to 2.2.3 [\#107](https://github.com/auth0/omniauth-auth0/pull/107) ([dependabot](https://github.com/dependabot))
+- Update dependencies [\#100](https://github.com/auth0/omniauth-auth0/pull/100) ([Albalmaceda](https://github.com/Albalmaceda))
+
+**Added**
+- Add support for screen_hint=signup param [\#103](https://github.com/auth0/omniauth-auth0/pull/103) ([bbean86](https://github.com/bbean86))
+- Add support for `connection_scope` in params [\#99](https://github.com/auth0/omniauth-auth0/pull/99) ([felixclack](https://github.com/felixclack))
+
+
+## [v2.3.1](https://github.com/auth0/omniauth-auth0/tree/v2.3.1) (2020-03-27)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.3.0...v2.3.1)
+
+**Fixed bugs:**
+
+- Fixes dependency issue [\#97](https://github.com/auth0/omniauth-auth0/pull/97) ([davidpatrick](https://github.com/davidpatrick))
+- Fix "NameError: uninitialized constant OmniAuth::Auth0::TokenValidationError" [\#96](https://github.com/auth0/omniauth-auth0/pull/96) ([stefanwork](https://github.com/stefanwork))
+
+## [v2.3.0](https://github.com/auth0/omniauth-auth0/tree/v2.3.0) (2020-03-06)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.2.0...v2.3.0)
+
+**Added**
+- Improved OIDC Compliance [\#92](https://github.com/auth0/omniauth-auth0/pull/92) ([davidpatrick](https://github.com/davidpatrick))
+
 ## [v2.2.0](https://github.com/auth0/omniauth-auth0/tree/v2.2.0) (2018-04-18)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.1.0...v2.2.0)
 

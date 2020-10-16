@@ -12,17 +12,17 @@ describe OmniAuth::Auth0::JWTValidator do
   let(:domain) { 'samples.auth0.com' }
   let(:future_timecode) { 32_503_680_000 }
   let(:past_timecode) { 303_912_000 }
-  let(:jwks_kid) { 'NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg' }
+  let(:valid_jwks_kid) { 'NkJCQzIyQzRBMEU4NjhGNUU4MzU4RkY0M0ZDQzkwOUQ0Q0VGNUMwQg' }
 
   let(:rsa_private_key) do
     OpenSSL::PKey::RSA.generate 2048
   end
 
-  let(:rsa_token_jwks) do
+  let(:valid_jwks) do
     {
       keys: [
         {
-          kid: jwks_kid,
+          kid: valid_jwks_kid,
           x5c: [Base64.encode64(make_cert(rsa_private_key).to_der)]
         }
       ]
@@ -91,29 +91,29 @@ describe OmniAuth::Auth0::JWTValidator do
     end
   end
 
-  describe 'JWT verifier jwks_key' do
+  describe 'JWT verifier jwks key parsing' do
     let(:jwt_validator) do
       make_jwt_validator
     end
 
     before do
-      stub_jwks
+      stub_complete_jwks
     end
 
     it 'should return a key' do
-      expect(jwt_validator.jwks_key(:alg, jwks_kid)).to eq('RS256')
+      expect(jwt_validator.jwks_key(:alg, valid_jwks_kid)).to eq('RS256')
     end
 
     it 'should return an x5c key' do
-      expect(jwt_validator.jwks_key(:x5c, jwks_kid).length).to eq(1)
+      expect(jwt_validator.jwks_key(:x5c, valid_jwks_kid).length).to eq(1)
     end
 
     it 'should return nil if there is not key' do
-      expect(jwt_validator.jwks_key(:auth0, jwks_kid)).to eq(nil)
+      expect(jwt_validator.jwks_key(:auth0, valid_jwks_kid)).to eq(nil)
     end
 
     it 'should return nil if the key ID is invalid' do
-      expect(jwt_validator.jwks_key(:alg, "#{jwks_kid}_invalid")).to eq(nil)
+      expect(jwt_validator.jwks_key(:alg, "#{valid_jwks_kid}_invalid")).to eq(nil)
     end
   end
 
@@ -157,30 +157,38 @@ describe OmniAuth::Auth0::JWTValidator do
     end
   end
 
-  describe 'JWT verifier decode' do
+  describe 'JWT verifier verify' do
     let(:jwt_validator) do
       make_jwt_validator
     end
 
     before do
-      stub_jwks
-      stub_dummy_jwks
+      stub_complete_jwks
+      stub_expected_jwks
     end
 
-    it 'should fail with passed expiration' do
-      payload = {
-        exp: past_timecode
-      }
-      token = make_hs256_token(payload)
+    it 'should fail when JWT is nil' do
       expect do
-        jwt_validator.decode(token)
-      end.to raise_error(JWT::ExpiredSignature)
+        jwt_validator.verify(nil)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "ID token is required but missing"
+      }))
+    end
+
+    it 'should fail when JWT is not well-formed' do
+      expect do
+        jwt_validator.verify('abc.123')
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "ID token could not be decoded"
+      }))
     end
 
     it 'should fail with missing issuer' do
       expect do
-        jwt_validator.decode(make_hs256_token)
-      end.to raise_error(JWT::InvalidIssuerError)
+        jwt_validator.verify(make_hs256_token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Issuer (iss) claim must be a string present in the ID token"
+      }))
     end
 
     it 'should fail with invalid issuer' do
@@ -189,55 +197,287 @@ describe OmniAuth::Auth0::JWTValidator do
       }
       token = make_hs256_token(payload)
       expect do
-        jwt_validator.decode(token)
-      end.to raise_error(JWT::InvalidIssuerError)
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Issuer (iss) claim mismatch in the ID token, expected (https://samples.auth0.com/), found (https://auth0.com/)"
+      }))
     end
 
-    it 'should fail with a future not before' do
+    it 'should fail when subject is missing' do
       payload = {
-        nbf: future_timecode,
-        iss: "https://#{domain}/"
+        iss: "https://#{domain}/",
+        sub: ''
       }
       token = make_hs256_token(payload)
       expect do
-        jwt_validator.decode(token)
-      end.to raise_error(JWT::ImmatureSignature)
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Subject (sub) claim must be a string present in the ID token"
+      }))
     end
 
     it 'should fail with missing audience' do
       payload = {
-        iss: "https://#{domain}/"
+        iss: "https://#{domain}/",
+        sub: 'sub'
       }
       token = make_hs256_token(payload)
       expect do
-        jwt_validator.decode(token)
-      end.to raise_error(JWT::InvalidAudError)
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Audience (aud) claim must be a string or array of strings present in the ID token"
+      }))
     end
 
     it 'should fail with invalid audience' do
       payload = {
         iss: "https://#{domain}/",
+        sub: 'sub',
         aud: 'Auth0'
       }
       token = make_hs256_token(payload)
       expect do
-        jwt_validator.decode(token)
-      end.to raise_error(JWT::InvalidAudError)
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Audience (aud) claim mismatch in the ID token; expected #{client_id} but found Auth0"
+      }))
     end
 
-    it 'should decode a valid HS256 token with multiple audiences' do
+    it 'should fail when missing expiration' do
       payload = {
         iss: "https://#{domain}/",
-        aud: [
-          client_id,
-          "https://#{domain}/userinfo"
-        ]
+        sub: 'sub',
+        aud: client_id
       }
+
       token = make_hs256_token(payload)
-      expect(jwt_validator.decode(token).length).to eq(2)
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Expiration time (exp) claim must be a number present in the ID token"
+      }))
     end
 
-    it 'should decode a standard HS256 token' do
+    it 'should fail when past expiration' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Expiration time (exp) claim error in the ID token; current time (#{Time.now}) is after expiration time (#{Time.at(past_timecode + 60)})"
+      }))
+    end
+
+    it 'should pass when past expiration but within default leeway' do
+      exp = Time.now.to_i - 59
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: exp,
+        iat: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      id_token = jwt_validator.verify(token)
+      expect(id_token['exp']).to eq(exp)
+    end
+
+    it 'should fail when past expiration and outside default leeway' do
+      exp = Time.now.to_i - 61
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: exp,
+        iat: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Expiration time (exp) claim error in the ID token; current time (#{Time.now}) is after expiration time (#{Time.at(exp + 60)})"
+      }))
+    end
+
+    it 'should fail when missing iat' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Issued At (iat) claim must be a number present in the ID token"
+      }))
+    end
+
+    it 'should fail when authorize params has nonce but nonce is missing in the token' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { nonce: 'noncey' })
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Nonce (nonce) claim must be a string present in the ID token"
+      }))
+    end
+
+    it 'should fail when authorize params has nonce but token nonce does not match' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode,
+        nonce: 'mismatch'
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { nonce: 'noncey' })
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Nonce (nonce) claim value mismatch in the ID token; expected (noncey), found (mismatch)"
+      }))
+    end
+    
+    it 'should fail when “aud” is an array of strings and azp claim is not present' do
+      aud = [
+        client_id,
+        "https://#{domain}/userinfo"
+      ]
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: aud,
+        exp: future_timecode,
+        iat: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Authorized Party (azp) claim must be a string present in the ID token when Audience (aud) claim has multiple values"
+      }))
+    end
+
+    it 'should fail when "azp" claim doesnt match the expected aud' do
+      aud = [
+        client_id,
+        "https://#{domain}/userinfo"
+      ]
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: aud,
+        exp: future_timecode,
+        iat: past_timecode,
+        azp: 'not_expected'
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Authorized Party (azp) claim mismatch in the ID token; expected (#{client_id}), found (not_expected)"
+      }))
+    end
+
+    it 'should fail when “max_age” sent on the authentication request and this claim is not present' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { max_age: 60 })
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Authentication Time (auth_time) claim must be a number present in the ID token when Max Age (max_age) is specified"
+      }))
+    end
+
+    it 'should fail when “max_age” sent on the authentication request and this claim added the “max_age” value doesn’t represent a date in the future' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode,
+        auth_time: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { max_age: 60 })
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Authentication Time (auth_time) claim in the ID token indicates that too much time has passed since the last end-user authentication. Current time (#{Time.now}) is after last auth time (#{Time.at(past_timecode + 60 + 60)})"
+      }))
+    end
+
+    it 'should fail when “max_age” sent on the authentication request and this claim added the “max_age” value doesn’t represent a date in the future, outside the default leeway' do
+      now = Time.now.to_i
+      auth_time = now - 121
+      max_age = 60
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode,
+        auth_time: auth_time
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { max_age: max_age })
+        # Time.at(auth_time + max_age + leeway
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Authentication Time (auth_time) claim in the ID token indicates that too much time has passed since the last end-user authentication. Current time (#{Time.now}) is after last auth time (#{Time.at(auth_time + max_age + 60)})"
+      }))
+    end
+
+    it 'should verify when “max_age” sent on the authentication request and this claim added the “max_age” value doesn’t represent a date in the future, outside the default leeway' do
+      now = Time.now.to_i
+      auth_time = now - 119
+      max_age = 60
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode,
+        auth_time: auth_time
+      }
+
+      token = make_hs256_token(payload)
+      id_token = jwt_validator.verify(token, { max_age: max_age })
+      expect(id_token['auth_time']).to eq(auth_time)
+    end
+
+    it 'should fail for RS256 token when kid is incorrect' do
+      domain = 'example.org'
       sub = 'abc123'
       payload = {
         sub: sub,
@@ -246,12 +486,16 @@ describe OmniAuth::Auth0::JWTValidator do
         iat: past_timecode,
         aud: client_id
       }
-      token = make_hs256_token(payload)
-      decoded_token = jwt_validator.decode(token)
-      expect(decoded_token.first['sub']).to eq(sub)
+      invalid_kid = 'invalid-kid'
+      token = make_rs256_token(payload, invalid_kid)
+      expect do
+        verified_token = make_jwt_validator(opt_domain: domain).verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Could not find a public key for Key ID (kid) 'invalid-kid'"
+      }))
     end
 
-    it 'should decode a standard RS256 token' do
+    it 'should fail when RS256 token has invalid signature' do
       domain = 'example.org'
       sub = 'abc123'
       payload = {
@@ -259,12 +503,124 @@ describe OmniAuth::Auth0::JWTValidator do
         exp: future_timecode,
         iss: "https://#{domain}/",
         iat: past_timecode,
+        aud: client_id
+      }
+      token = make_rs256_token(payload) + 'bad'
+      expect do
+        verified_token = make_jwt_validator(opt_domain: domain).verify(token)
+      end.to raise_error(an_instance_of(JWT::VerificationError).and having_attributes({
+        message: "Signature verification raised"
+      }))
+    end
+
+    it 'should fail when algorithm is not RS256 or HS256' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'abc123',
         aud: client_id,
-        kid: jwks_kid
+        exp: future_timecode,
+        iat: past_timecode
+      }
+      token = JWT.encode payload, 'secret', 'HS384'
+      expect do
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Signature algorithm of HS384 is not supported. Expected the ID token to be signed with RS256 or HS256"
+      }))
+    end
+
+    it 'should fail when HS256 token has invalid signature' do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'abc123',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode
+      }
+      token = make_hs256_token(payload, 'bad_secret')
+      expect do
+        # validator is configured to use "CLIENT_SECRET" by default
+        jwt_validator.verify(token)
+      end.to raise_error(an_instance_of(JWT::VerificationError))
+    end
+
+    it 'should verify a valid HS256 token with multiple audiences' do
+      audience = [
+        client_id,
+        "https://#{domain}/userinfo"
+      ]
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: audience,
+        exp: future_timecode,
+        iat: past_timecode,
+        azp: client_id
+      }
+      token = make_hs256_token(payload)
+      id_token = jwt_validator.verify(token)
+      expect(id_token['aud']).to eq(audience)
+    end
+
+    it 'should verify a standard HS256 token' do
+      sub = 'abc123'
+      payload = {
+        iss: "https://#{domain}/",
+        sub: sub,
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode
+      }
+      token = make_hs256_token(payload)
+      verified_token = jwt_validator.verify(token)
+      expect(verified_token['sub']).to eq(sub)
+    end
+
+    it 'should verify a standard RS256 token' do
+      domain = 'example.org'
+      sub = 'abc123'
+      payload = {
+        sub: sub,
+        exp: future_timecode,
+        iss: "https://#{domain}/",
+        iat: past_timecode,
+        aud: client_id
       }
       token = make_rs256_token(payload)
-      decoded_token = make_jwt_validator(opt_domain: domain).decode(token)
-      expect(decoded_token.first['sub']).to eq(sub)
+      verified_token = make_jwt_validator(opt_domain: domain).verify(token)
+      expect(verified_token['sub']).to eq(sub)
+    end
+
+    it 'should verify a HS256 JWT signature when calling verify signature directly' do
+      sub = 'abc123'
+        payload = {
+          iss: "https://#{domain}/",
+          sub: sub,
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode
+        }
+        token = make_hs256_token(payload)
+        verified_token_signature = jwt_validator.verify_signature(token)
+        expect(verified_token_signature[0]).to eq('CLIENT_SECRET')
+        expect(verified_token_signature[1]).to eq('HS256')
+    end
+
+    it 'should verify a RS256 JWT signature verify signature directly' do
+      domain = 'example.org'
+      sub = 'abc123'
+      payload = {
+        sub: sub,
+        exp: future_timecode,
+        iss: "https://#{domain}/",
+        iat: past_timecode,
+        aud: client_id
+      }
+      token = make_rs256_token(payload)
+      verified_token_signature = make_jwt_validator(opt_domain: domain).verify_signature(token)
+      expect(verified_token_signature.length).to be(2)
+      expect(verified_token_signature[0]).to be_a(OpenSSL::PKey::RSA)
+      expect(verified_token_signature[1]).to eq('RS256')
     end
   end
 
@@ -281,14 +637,16 @@ describe OmniAuth::Auth0::JWTValidator do
     OmniAuth::Auth0::JWTValidator.new(opts)
   end
 
-  def make_hs256_token(payload = nil)
+  def make_hs256_token(payload = nil, secret = nil)
     payload = { sub: 'abc123' } if payload.nil?
-    JWT.encode payload, client_secret, 'HS256'
+    secret = client_secret if secret.nil?
+    JWT.encode payload, secret, 'HS256'
   end
 
-  def make_rs256_token(payload = nil)
+  def make_rs256_token(payload = nil, kid = nil)
     payload = { sub: 'abc123' } if payload.nil?
-    JWT.encode payload, rsa_private_key, 'RS256', kid: jwks_kid
+    kid = valid_jwks_kid if kid.nil?
+    JWT.encode payload, rsa_private_key, 'RS256', kid: kid
   end
 
   def make_cert(private_key)
@@ -316,7 +674,7 @@ describe OmniAuth::Auth0::JWTValidator do
     cert.sign private_key, OpenSSL::Digest::SHA1.new
   end
 
-  def stub_jwks
+  def stub_complete_jwks
     stub_request(:get, 'https://samples.auth0.com/.well-known/jwks.json')
       .to_return(
         headers: { 'Content-Type' => 'application/json' },
@@ -325,18 +683,11 @@ describe OmniAuth::Auth0::JWTValidator do
       )
   end
 
-  def stub_bad_jwks
-    stub_request(:get, 'https://samples.auth0.com/.well-known/jwks-bad.json')
-      .to_return(
-        status: 404
-      )
-  end
-
-  def stub_dummy_jwks
+  def stub_expected_jwks
     stub_request(:get, 'https://example.org/.well-known/jwks.json')
       .to_return(
         headers: { 'Content-Type' => 'application/json' },
-        body: rsa_token_jwks,
+        body: valid_jwks,
         status: 200
       )
   end

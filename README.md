@@ -1,13 +1,14 @@
 # OmniAuth Auth0
 
-An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating with [Auth0](https://auth0.com). This strategy is based on the [OmniAuth OAuth2](https://github.com/omniauth/omniauth-oauth2) strategy. 
+An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating with [Auth0](https://auth0.com). This strategy is based on the [OmniAuth OAuth2](https://github.com/omniauth/omniauth-oauth2) strategy.
 
-**Important security note:** The parent library for this strategy currently has an unresolved security issue. Please see the discussion, including mitigations for Rails and non-Rails applications, [here](https://github.com/auth0/omniauth-auth0/issues/82).
+> :warning:  **Important security note:** This solution uses a 3rd party library with an unresolved [security issue(s)](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-9284). Please review the details of the vulnerability, including [Auth0](https://github.com/auth0/omniauth-auth0/issues/82 ) and other recommended [mitigations](https://github.com/omniauth/omniauth/wiki/Resolving-CVE-2015-9284), before implementing the solution.
 
 [![CircleCI](https://img.shields.io/circleci/project/github/auth0/omniauth-auth0/master.svg)](https://circleci.com/gh/auth0/omniauth-auth0)
 [![codecov](https://codecov.io/gh/auth0/omniauth-auth0/branch/master/graph/badge.svg)](https://codecov.io/gh/auth0/omniauth-auth0)
 [![Gem Version](https://badge.fury.io/rb/omniauth-auth0.svg)](https://badge.fury.io/rb/omniauth-auth0)
 [![MIT licensed](https://img.shields.io/dub/l/vibe-d.svg?style=flat)](https://github.com/auth0/omniauth-auth0/blob/master/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fauth0%2Fomniauth-auth0.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fauth0%2Fomniauth-auth0?ref=badge_shield)
 
 ## Table of Contents
 
@@ -45,7 +46,7 @@ Then install:
 $ bundle install
 ```
 
-See our [contributing guide](CONTRIBUTING.md) for information on local installation for development. 
+See our [contributing guide](CONTRIBUTING.md) for information on local installation for development.
 
 ## Getting Started
 
@@ -63,7 +64,7 @@ All of these tasks and more are covered in our [Ruby on Rails Quickstart](https:
 To send additional parameters during login, you can specify them when you register the provider:
 
 ```ruby
-provider 
+provider
   :auth0,
   ENV['AUTH0_CLIENT_ID'],
   ENV['AUTH0_CLIENT_SECRET'],
@@ -71,7 +72,8 @@ provider
   {
     authorize_params: {
       scope: 'openid read:users write:order',
-      audience: 'https://mydomain/api'
+      audience: 'https://mydomain/api',
+      max_age: 3600 # time in seconds authentication is valid
     }
   }
 ```
@@ -120,6 +122,17 @@ The Auth0 strategy will provide the standard OmniAuth hash attributes:
 }
 ```
 
+### Query Parameter Options
+
+In some scenarios, you may need to pass specific query parameters to `/authorize`. The following parameters are available to enable this:
+
+- `connection`
+- `connection_scope`
+- `prompt`
+- `screen_hint` (only relevant to New Universal Login Experience)
+
+Simply pass these query parameters to your OmniAuth redirect endpoint to enable their behavior.
+
 ## Contribution
 
 We appreciate feedback and contribution to this repo! Before you get started, please see the following:
@@ -132,7 +145,7 @@ We appreciate feedback and contribution to this repo! Before you get started, pl
 
 - Use [Community](https://community.auth0.com/) for usage, questions, specific cases.
 - Use [Issues](https://github.com/auth0/omniauth-auth0/issues) here for code-level support and bug reports.
-- Paid customers can use [Support](https://support.auth0.com/) to submit a trouble ticket for production-affecting issues. 
+- Paid customers can use [Support](https://support.auth0.com/) to submit a trouble ticket for production-affecting issues.
 
 ## Vulnerability Reporting
 
@@ -154,3 +167,6 @@ Auth0 helps you to easily:
 ## License
 
 The OmniAuth Auth0 strategy is licensed under MIT - [LICENSE](LICENSE)
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fauth0%2Fomniauth-auth0.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fauth0%2Fomniauth-auth0?ref=badge_large)
