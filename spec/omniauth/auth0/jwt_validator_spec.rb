@@ -133,16 +133,26 @@ describe OmniAuth::Auth0::JWTValidator do
     end
 
     context 'different from domain' do
-      let(:jwt_validator) do
-        make_jwt_validator(opt_issuer: 'different.auth0.com')
+      shared_examples_for 'has correct issuer and domain' do
+        let(:jwt_validator) { make_jwt_validator(opt_issuer: opt_issuer) }
+
+        it 'should have the correct issuer' do
+          expect(jwt_validator.issuer).to eq('https://different.auth0.com/')
+        end
+
+        it 'should have the correct domain' do
+          expect(jwt_validator.domain).to eq('https://samples.auth0.com/')
+        end
       end
 
-      it 'should have the correct issuer' do
-        expect(jwt_validator.issuer).to eq('https://different.auth0.com/')
+      context 'without protocol and trailing slash' do
+        let(:opt_issuer) { 'different.auth0.com' }
+        it_behaves_like 'has correct issuer and domain'
       end
 
-      it 'should have the correct domain' do
-        expect(jwt_validator.domain).to eq('https://samples.auth0.com/')
+      context 'with protocol and trailing slash' do
+        let(:opt_issuer) { 'https://different.auth0.com/' }
+        it_behaves_like 'has correct issuer and domain'
       end
     end
   end

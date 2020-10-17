@@ -153,7 +153,8 @@ module OmniAuth
       def uri_string(uri)
         temp_domain = URI(uri)
         temp_domain = URI("https://#{uri}") unless temp_domain.scheme
-        "#{temp_domain}/"
+        temp_domain = temp_domain.to_s
+        temp_domain.end_with?('/') ? temp_domain : "#{temp_domain}/"
       end
 
       def verify_claims(id_token, authorize_params)
