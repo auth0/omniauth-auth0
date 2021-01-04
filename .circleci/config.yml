@@ -7,11 +7,11 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - gems-v2-{{ checksum "Gemfile.lock" }}
+            - gems-v2-{{ checksum "Gemfile" }}
             - gems-v2-
       - run: bundle check || bundle install
       - save_cache:
-          key: gems-v2--{{ checksum "Gemfile.lock" }}
+          key: gems-v2--{{ checksum "Gemfile" }}
           paths:
             - vendor/bundle
       - run: bundle exec rake spec
