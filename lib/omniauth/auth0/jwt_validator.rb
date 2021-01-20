@@ -29,29 +29,33 @@ module OmniAuth
       end
 
       # Verify a token's signature. Only tokens signed with the RS256 or HS256 signatures are supported.
+      # Deprecated: Please use `decode` instead
       # @return array - The token's key and signing algorithm
       def verify_signature(jwt)
         head = token_head(jwt)
-
-        # Make sure the algorithm is supported and get the decode key.
-        if head[:alg] == 'RS256'
-          key, alg = [rs256_decode_key(head[:kid]), head[:alg]]
-        elsif head[:alg] == 'HS256'
-          key, alg = [@client_secret, head[:alg]]
-        else
-          raise OmniAuth::Auth0::TokenValidationError.new("Signature algorithm of #{head[:alg]} is not supported. Expected the ID token to be signed with RS256 or HS256")
-        end
+        key, alg = extract_key(head)
 
         # Call decode to verify the signature
         JWT.decode(jwt, key, true, decode_opts(alg))
-
         return key, alg
+      end
+
+      # Decodes a JWT and verifies it's signature. Only tokens signed with the RS256 or HS256 signatures are supported.
+      # @param jwt string - JWT to verify.
+      # @return hash - The decoded token, if there were no exceptions.
+      # @see https://github.com/jwt/ruby-jwt
+      def decode(jwt)
+        head = token_head(jwt)
+        key, alg = extract_key(head)
+
+        # Call decode to verify the signature
+        JWT.decode(jwt, key, true, decode_opts(alg))
       end
 
       # Verify a JWT.
       # @param jwt string - JWT to verify.
       # @param authorize_params hash - Authorization params to verify on the JWT
-      # @return hash - The verified token, if there were no exceptions.
+      # @return hash - The verified token payload, if there were no exceptions.
       def verify(jwt, authorize_params = {})
         if !jwt
           raise OmniAuth::Auth0::TokenValidationError.new('ID token is required but missing')
@@ -62,8 +66,7 @@ module OmniAuth
           raise OmniAuth::Auth0::TokenValidationError.new('ID token could not be decoded')
         end
 
-        key, alg = verify_signature(jwt)
-        id_token, header = JWT.decode(jwt, key, false)
+        id_token, header = decode(jwt)
         verify_claims(id_token, authorize_params)
 
         return id_token
@@ -114,6 +117,16 @@ module OmniAuth
           verify_subj: false,
           verify_not_before: false
         }
+      end
+
+      def extract_key(head)
+        if head[:alg] == 'RS256'
+          key, alg = [rs256_decode_key(head[:kid]), head[:alg]]
+        elsif head[:alg] == 'HS256'
+          key, alg = [@client_secret, head[:alg]]
+        else
+          raise OmniAuth::Auth0::TokenValidationError.new("Signature algorithm of #{head[:alg]} is not supported. Expected the ID token to be signed with RS256 or HS256")
+        end
       end
 
       def rs256_decode_key(kid)
