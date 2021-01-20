@@ -1,5 +1,12 @@
 # Change Log
 
+## [v2.4.2](https://github.com/auth0/omniauth-auth0/tree/v2.4.2) (2021-01-19)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.1...v2.4.2)
+
+**Fixed**
+- Lock Omniauth to 1.9 in gemspec
+
 ## [v2.4.1](https://github.com/auth0/omniauth-auth0/tree/v2.4.1) (2020-10-08)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.0...v2.4.1)
