@@ -22,7 +22,7 @@ omniauth-auth0 is the OmniAuth strategy for Auth0.
   s.require_paths = ['lib']
 
   s.add_runtime_dependency 'omniauth-oauth2', '~> 1.5'
-
+  s.add_runtime_dependency 'omniauth', '~> 1.9'
   s.add_development_dependency 'bundler', '~> 1.9'
   
   s.license = 'MIT'
