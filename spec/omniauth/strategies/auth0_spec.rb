@@ -33,7 +33,12 @@ describe OmniAuth::Strategies::Auth0 do
   end
 
   describe 'client_options' do
-    let(:subject) { auth0.client }
+    let(:subject) { OmniAuth::Strategies::Auth0.new(
+      application,
+      client_id,
+      client_secret,
+      domain_url
+    ).client }
 
     context 'domain with https' do
       let(:domain_url) { 'https://samples.auth0.com' }
@@ -168,12 +173,17 @@ describe OmniAuth::Strategies::Auth0 do
         payload['sub'] = user_id
         payload['iss'] = "#{domain_url}/"
         payload['aud'] = client_id
+        payload['name'] = name
+        payload['nickname'] = nickname
+        payload['picture'] = picture
+        payload['email'] = email
+        payload['email_verified'] = email_verified
+
         JWT.encode payload, client_secret, 'HS256'
       end
 
       let(:oauth_response) do
         {
-          id_token: id_token,
           access_token: access_token,
           expires_in: expires_in,
           token_type: token_type
@@ -189,17 +199,7 @@ describe OmniAuth::Strategies::Auth0 do
         }
       end
 
-      let(:basic_user_info) { { sub: user_id } }
-      let(:oidc_user_info) do
-        {
-          sub: user_id,
-          name: name,
-          nickname: nickname,
-          email: email,
-          picture: picture,
-          email_verified: email_verified
-        }
-      end
+      let(:basic_user_info) { { "sub" => user_id, "name" => name } }
 
       def stub_auth(body)
         stub_request(:post, 'https://samples.auth0.com/oauth/token')
@@ -227,7 +227,9 @@ describe OmniAuth::Strategies::Auth0 do
         WebMock.reset!
       end
 
-      let(:subject) { MultiJson.decode(last_response.body) }
+      let(:subject) do
+        MultiJson.decode(last_response.body)
+      end
 
       context 'basic oauth' do
         before do
@@ -246,10 +248,14 @@ describe OmniAuth::Strategies::Auth0 do
           expect(subject['credentials']['expires_at']).to_not be_nil
         end
 
-        it 'has basic values' do
+        it 'has basic values'  do
           expect(subject['provider']).to eq('auth0')
           expect(subject['uid']).to eq(user_id)
-          expect(subject['info']['name']).to eq(user_id)
+          expect(subject['info']['name']).to eq(name)
+        end
+
+        it 'should use the user info endpoint' do
+          expect(subject['extra']['raw_info']).to eq(basic_user_info)
         end
       end
 
@@ -275,7 +281,6 @@ describe OmniAuth::Strategies::Auth0 do
       context 'oidc' do
         before do
           stub_auth(oidc_response)
-          stub_userinfo(oidc_user_info)
           trigger_callback
         end
 

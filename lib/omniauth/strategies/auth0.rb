@@ -57,8 +57,7 @@ module OmniAuth
         auth_scope = session_authorize_params[:scope]
         if auth_scope.respond_to?(:include?) && auth_scope.include?('openid')
           # Make sure the ID token can be verified and decoded.
-          auth0_jwt = OmniAuth::Auth0::JWTValidator.new(options)
-          auth0_jwt.verify(credentials['id_token'], session_authorize_params)
+          jwt_validator.verify(credentials['id_token'], session_authorize_params)
         end
 
         credentials
@@ -129,11 +128,23 @@ module OmniAuth
       end
 
       private
+      def jwt_validator
+        @jwt_validator ||= OmniAuth::Auth0::JWTValidator.new(options)
+      end
 
       # Parse the raw user info.
       def raw_info
-        userinfo_url = options.client_options.userinfo_url
-        @raw_info ||= access_token.get(userinfo_url).parsed
+        return @raw_info if @raw_info
+
+        if access_token["id_token"]
+          claims, header = jwt_validator.decode(access_token["id_token"])
+          @raw_info = claims
+        else
+          userinfo_url = options.client_options.userinfo_url
+          @raw_info = access_token.get(userinfo_url).parsed
+        end
+
+        return @raw_info
       end
 
       # Check if the options include a client_id
