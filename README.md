@@ -25,6 +25,7 @@ An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating 
 
 - [Ruby on Rails Quickstart](https://auth0.com/docs/quickstart/webapp/rails)
 - [Sample projects](https://github.com/auth0-samples/auth0-rubyonrails-sample)
+- [API Reference](https://www.rubydoc.info/gems/omniauth-auth0)
 
 ## Installation
 
