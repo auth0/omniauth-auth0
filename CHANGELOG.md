@@ -1,5 +1,19 @@
 # Change Log
 
+## [v2.5.0](https://github.com/auth0/omniauth-auth0/tree/v2.5.0) (2021-01-21)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.2...v2.5.0)
+
+**Added**
+- Parsing claims from the id_token [\#120](https://github.com/auth0/omniauth-auth0/pull/120) ([davidpatrick](https://github.com/davidpatrick))
+
+**Changed**
+- Setup build matrix in CI [\#116](https://github.com/auth0/omniauth-auth0/pull/116) ([dmathieu](https://github.com/dmathieu))
+
+**Fixed**
+- Fixes params passed to authorize [\#119](https://github.com/auth0/omniauth-auth0/pull/119) ([davidpatrick](https://github.com/davidpatrick))
+
+
 ## [v2.4.2](https://github.com/auth0/omniauth-auth0/tree/v2.4.2) (2021-01-19)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.1...v2.4.2)
