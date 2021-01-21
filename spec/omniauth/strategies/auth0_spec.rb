@@ -25,13 +25,6 @@ describe OmniAuth::Strategies::Auth0 do
     )
   end
 
-  around do |t|
-    allowed_request_methods = OmniAuth.config.allowed_request_methods
-    OmniAuth.config.allowed_request_methods = [:post, :get]
-    t.run
-    OmniAuth.config.allowed_request_methods = allowed_request_methods
-  end
-
   describe 'client_options' do
     let(:subject) { OmniAuth::Strategies::Auth0.new(
       application,
