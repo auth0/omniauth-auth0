@@ -91,6 +91,7 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('connection_scope')
       expect(redirect_url).not_to have_query('prompt')
       expect(redirect_url).not_to have_query('screen_hint')
+      expect(redirect_url).not_to have_query('login_hint')
     end
 
     it 'redirects to hosted login page' do
@@ -107,6 +108,7 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('connection_scope')
       expect(redirect_url).not_to have_query('prompt')
       expect(redirect_url).not_to have_query('screen_hint')
+      expect(redirect_url).not_to have_query('login_hint')
     end
 
     it 'redirects to the hosted login page with connection_scope' do
@@ -130,6 +132,7 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('prompt', 'login')
       expect(redirect_url).not_to have_query('auth0Client')
       expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('login_hint')
     end
 
     it 'redirects to hosted login page with screen_hint=signup' do
@@ -144,6 +147,7 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('screen_hint', 'signup')
       expect(redirect_url).not_to have_query('auth0Client')
       expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('login_hint')
     end
 
     it 'redirects to hosted login page with login_hint=example@mail.com' do
