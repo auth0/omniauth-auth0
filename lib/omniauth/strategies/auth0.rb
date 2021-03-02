@@ -84,7 +84,7 @@ module OmniAuth
       # Define the parameters used for the /authorize endpoint
       def authorize_params
         params = super
-        %w[connection connection_scope prompt screen_hint organization invitation].each do |key|
+        %w[connection connection_scope prompt screen_hint login_hint organization invitation].each do |key|
           params[key] = request.params[key] if request.params.key?(key)
         end
 
