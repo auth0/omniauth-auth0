@@ -146,6 +146,23 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('connection')
     end
 
+    it 'redirects to hosted login page with login_hint=example@mail.com' do
+      get 'auth/auth0?login_hint=example@mail.com'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to start_with('https://samples.auth0.com/authorize')
+      expect(redirect_url).to have_query('response_type', 'code')
+      expect(redirect_url).to have_query('state')
+      expect(redirect_url).to have_query('client_id')
+      expect(redirect_url).to have_query('redirect_uri')
+      expect(redirect_url).to have_query('login_hint', 'example@mail.com')
+      expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('connection_scope')
+      expect(redirect_url).not_to have_query('prompt')
+      expect(redirect_url).not_to have_query('screen_hint')
+    end
+
     describe 'callback' do
       let(:access_token) { 'access token' }
       let(:expires_in) { 2000 }
