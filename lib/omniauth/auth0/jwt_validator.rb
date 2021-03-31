@@ -174,6 +174,7 @@ module OmniAuth
         leeway = authorize_params[:leeway] || 60
         max_age = authorize_params[:max_age]
         nonce = authorize_params[:nonce]
+        organization = authorize_params[:organization]
 
         verify_iss(id_token)
         verify_sub(id_token)
@@ -183,6 +184,7 @@ module OmniAuth
         verify_nonce(id_token, nonce)
         verify_azp(id_token)
         verify_auth_time(id_token, leeway, max_age)
+        verify_org(id_token, organization)
       end
 
       def verify_iss(id_token)
@@ -257,6 +259,17 @@ module OmniAuth
             raise OmniAuth::Auth0::TokenValidationError.new("Authentication Time (auth_time) claim must be a number present in the ID token when Max Age (max_age) is specified")
           elsif Time.now.to_i >  auth_time + max_age + leeway;
             raise OmniAuth::Auth0::TokenValidationError.new("Authentication Time (auth_time) claim in the ID token indicates that too much time has passed since the last end-user authentication. Current time (#{Time.now}) is after last auth time (#{Time.at(auth_time + max_age + leeway)})")
+          end
+        end
+      end
+
+      def verify_org(id_token, organization)
+        if organization
+          org_id = id_token['org_id']
+          if !org_id || !org_id.is_a?(String)
+            raise OmniAuth::Auth0::TokenValidationError.new("Organization Id (org_id) claim must be a string present in the ID token")
+          elsif org_id != organization
+            raise OmniAuth::Auth0::TokenValidationError.new("Organization Id (org_id) claim value mismatch in the ID token; expected '#{organization}', found '#{org_id}'")
           end
         end
       end
