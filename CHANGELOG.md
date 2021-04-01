@@ -1,5 +1,13 @@
 # Change Log
 
+## [v2.6.0](https://github.com/auth0/omniauth-auth0/tree/v2.6.0) (2021-04-01)
+
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.5.0...v2.6.0)
+
+**Added**
+- Org Support [SDK-2395]  [\#124](https://github.com/auth0/omniauth-auth0/pull/124) ([davidpatrick](https://github.com/davidpatrick))
+- Add login_hint to permitted params  [\#123](https://github.com/auth0/omniauth-auth0/pull/123) ([Roriz](https://github.com/Roriz))
+
 ## [v2.5.0](https://github.com/auth0/omniauth-auth0/tree/v2.5.0) (2021-01-21)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.4.2...v2.5.0)
