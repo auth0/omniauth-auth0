@@ -92,6 +92,8 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('prompt')
       expect(redirect_url).not_to have_query('screen_hint')
       expect(redirect_url).not_to have_query('login_hint')
+      expect(redirect_url).not_to have_query('organization')
+      expect(redirect_url).not_to have_query('invitation')
     end
 
     it 'redirects to hosted login page' do
@@ -109,6 +111,8 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('prompt')
       expect(redirect_url).not_to have_query('screen_hint')
       expect(redirect_url).not_to have_query('login_hint')
+      expect(redirect_url).not_to have_query('organization')
+      expect(redirect_url).not_to have_query('invitation')
     end
 
     it 'redirects to the hosted login page with connection_scope' do
@@ -133,6 +137,8 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('auth0Client')
       expect(redirect_url).not_to have_query('connection')
       expect(redirect_url).not_to have_query('login_hint')
+      expect(redirect_url).not_to have_query('organization')
+      expect(redirect_url).not_to have_query('invitation')
     end
 
     it 'redirects to hosted login page with screen_hint=signup' do
@@ -147,6 +153,27 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).to have_query('screen_hint', 'signup')
       expect(redirect_url).not_to have_query('auth0Client')
       expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('login_hint')
+      expect(redirect_url).not_to have_query('organization')
+      expect(redirect_url).not_to have_query('invitation')
+    end
+
+    it 'redirects to hosted login page with organization=TestOrg and invitation=TestInvite' do
+      get 'auth/auth0?organization=TestOrg&invitation=TestInvite'
+      expect(last_response.status).to eq(302)
+      redirect_url = last_response.headers['Location']
+      expect(redirect_url).to start_with('https://samples.auth0.com/authorize')
+      expect(redirect_url).to have_query('response_type', 'code')
+      expect(redirect_url).to have_query('state')
+      expect(redirect_url).to have_query('client_id')
+      expect(redirect_url).to have_query('redirect_uri')
+      expect(redirect_url).to have_query('organization', 'TestOrg')
+      expect(redirect_url).to have_query('invitation', 'TestInvite')
+      expect(redirect_url).not_to have_query('auth0Client')
+      expect(redirect_url).not_to have_query('connection')
+      expect(redirect_url).not_to have_query('connection_scope')
+      expect(redirect_url).not_to have_query('prompt')
+      expect(redirect_url).not_to have_query('screen_hint')
       expect(redirect_url).not_to have_query('login_hint')
     end
 
@@ -165,6 +192,8 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('connection_scope')
       expect(redirect_url).not_to have_query('prompt')
       expect(redirect_url).not_to have_query('screen_hint')
+      expect(redirect_url).not_to have_query('organization')
+      expect(redirect_url).not_to have_query('invitation')
     end
 
     describe 'callback' do
