@@ -476,6 +476,41 @@ describe OmniAuth::Auth0::JWTValidator do
       expect(id_token['auth_time']).to eq(auth_time)
     end
 
+    it 'should fail when authorize params has organization but org_id is missing in the token', focus: true do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { organization: 'Test Org' })
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Organization Id (org_id) claim must be a string present in the ID token"
+      }))
+    end
+
+    it 'should fail when authorize params has organization but token org_id does not match', focus: true do
+      payload = {
+        iss: "https://#{domain}/",
+        sub: 'sub',
+        aud: client_id,
+        exp: future_timecode,
+        iat: past_timecode,
+        org_id: 'Wrong Org'
+      }
+
+      token = make_hs256_token(payload)
+      expect do
+        jwt_validator.verify(token, { organization: 'Test Org' })
+      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+        message: "Organization Id (org_id) claim value mismatch in the ID token; expected 'Test Org', found 'Wrong Org'"
+      }))
+    end
+
     it 'should fail for RS256 token when kid is incorrect' do
       domain = 'example.org'
       sub = 'abc123'

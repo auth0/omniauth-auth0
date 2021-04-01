@@ -131,8 +131,77 @@ In some scenarios, you may need to pass specific query parameters to `/authorize
 - `connection_scope`
 - `prompt`
 - `screen_hint` (only relevant to New Universal Login Experience)
+- `organization`
+- `invitation`
 
 Simply pass these query parameters to your OmniAuth redirect endpoint to enable their behavior.
+
+## Examples
+
+### Auth0 Organizations (Closed Beta)
+
+Organizations is a set of features that provide better support for developers who build and maintain SaaS and Business-to-Business (B2B) applications.
+
+Using Organizations, you can:
+
+- Represent teams, business customers, partner companies, or any logical grouping of users that should have different ways of accessing your applications, as organizations.
+- Manage their membership in a variety of ways, including user invitation.
+- Configure branded, federated login flows for each organization.
+- Implement role-based access control, such that users can have different roles when authenticating in the context of different organizations.
+- Build administration capabilities into your products, using Organizations APIs, so that those businesses can manage their own organizations.
+
+Note that Organizations is currently only available to customers on our Enterprise and Startup subscription plans.
+
+#### Logging in with an Organization
+
+Logging in with an Organization is as easy as passing the parameters to the authorize endpoint.  You can do this with 
+
+```ruby
+<%= 
+    button_to 'Login', 'auth/auth0',
+    method: :post,
+    params: {
+      # Found in your Auth0 dashboard, under Organization settings:
+      organization: '{AUTH0_ORGANIZATION}'
+    }
+%>
+```
+
+Alternatively you can configure the organization when you register the provider:
+
+```ruby
+provider
+  :auth0,
+  ENV['AUTH0_CLIENT_ID'],
+  ENV['AUTH0_CLIENT_SECRET'],
+  ENV['AUTH0_DOMAIN'],
+  {
+    authorize_params: {
+      scope: 'openid read:users',
+      audience: 'https://{AUTH0_DOMAIN}/api',
+      organization: '{AUTH0_ORGANIZATION}'
+    }
+  }
+```
+
+#### Accepting user invitations
+
+Auth0 Organizations allow users to be invited using emailed links, which will direct a user back to your application. The URL the user will arrive at is based on your configured `Application Login URI`, which you can change from your Application's settings inside the Auth0 dashboard.
+
+When the user arrives at your application using an invite link, you can expect three query parameters to be provided: `invitation`, `organization`, and `organization_name`. These will always be delivered using a GET request.
+
+You can then supply those parametrs to a `button_to` or `link_to` helper
+
+```ruby
+<%= 
+    button_to 'Login', 'auth/auth0',
+    method: :post,
+    params: {
+      organization: '{YOUR_ORGANIZATION_ID}',
+      invitation: '{INVITE_CODE}'
+    }
+%>
+```
 
 ## Contribution
 
