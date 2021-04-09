@@ -184,24 +184,8 @@ provider
   }
 ```
 
-#### Accepting user invitations
+When passing `openid` to the scope and `organization` to the authorize params, you will receive an ID token on callback with the `org_id` claim.  This claim is validated for you by the SDK.
 
-Auth0 Organizations allow users to be invited using emailed links, which will direct a user back to your application. The URL the user will arrive at is based on your configured `Application Login URI`, which you can change from your Application's settings inside the Auth0 dashboard.
-
-When the user arrives at your application using an invite link, you can expect three query parameters to be provided: `invitation`, `organization`, and `organization_name`. These will always be delivered using a GET request.
-
-You can then supply those parametrs to a `button_to` or `link_to` helper
-
-```ruby
-<%= 
-    button_to 'Login', 'auth/auth0',
-    method: :post,
-    params: {
-      organization: '{YOUR_ORGANIZATION_ID}',
-      invitation: '{INVITE_CODE}'
-    }
-%>
-```
 #### Validating Organizations when using Organization Login Prompt
 
 When Organization login prompt is enabled on your application, but you haven't specified an Organization for the application's authorization endpoint, the `org_id` claim will be present on the ID token, and should be validated to ensure that the value received is expected or known.
@@ -226,6 +210,25 @@ Here is an example using it in your `callback` method
 ```
 
 For more information, please read [Work with Tokens and Organizations](https://auth0.com/docs/organizations/using-tokens) on Auth0 Docs.
+
+#### Accepting user invitations
+
+Auth0 Organizations allow users to be invited using emailed links, which will direct a user back to your application. The URL the user will arrive at is based on your configured `Application Login URI`, which you can change from your Application's settings inside the Auth0 dashboard.
+
+When the user arrives at your application using an invite link, you can expect three query parameters to be provided: `invitation`, `organization`, and `organization_name`. These will always be delivered using a GET request.
+
+You can then supply those parametrs to a `button_to` or `link_to` helper
+
+```ruby
+<%= 
+    button_to 'Login', 'auth/auth0',
+    method: :post,
+    params: {
+      organization: '{YOUR_ORGANIZATION_ID}',
+      invitation: '{INVITE_CODE}'
+    }
+%>
+```
 
 ## Contribution
 
