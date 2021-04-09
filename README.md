@@ -174,8 +174,7 @@ provider
   :auth0,
   ENV['AUTH0_CLIENT_ID'],
   ENV['AUTH0_CLIENT_SECRET'],
-  ENV['AUTH0_DOMAIN'],
-  organizations: ['{AUTH0_ORGANIZATION}']
+  ENV['AUTH0_DOMAIN']
   {
     authorize_params: {
       scope: 'openid read:users',
