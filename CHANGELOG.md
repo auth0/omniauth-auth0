@@ -1,5 +1,38 @@
 # Change Log
 
+## [v3.0.0](https://github.com/auth0/omniauth-auth0/tree/v3.0.0) (2021-04-14)
+Version 3.0 introduces [Omniauth v2.0](https://github.com/omniauth/omniauth/releases/tag/v2.0.0) which addresses [CVE-2015-9284](https://nvd.nist.gov/vuln/detail/CVE-2015-9284).  Omniauth now defaults to only allow `POST` as the allowed request_phase method.
+
+### Upgrading to omniauth-rails_csrf_protection v1.0.0
+The [mitigation](https://github.com/auth0/omniauth-auth0/issues/82) to CVE-2015-9284 included using `omniauth-rails_csrf_protection` to provide CSRF protection.  You will need to install this gem and/or upgrade to the latest version 1.x.x
+
+### BREAKING CHANGES
+Now that OmniAuth now defaults to only POST as the allowed request_phase method, you will need to convert any login links to use [form helpers](https://api.rubyonrails.org/classes/ActionView/Helpers/FormHelper.html#method-i-form_for) with the POST method.
+
+```html+ruby
+# OLD
+<a href='/auth/auth0'>Login</a>
+
+# NEW Example #1
+<%= link_to 'Login', 'auth/auth0', method: :post %>
+
+# NEW Example #2
+<%= button_to 'Login', 'auth/auth0', method: :post %>
+
+# NEW Example #3
+<%= form_tag('/auth/auth0', method: :post) do %>
+  <button type='submit'></button>
+<% end %>
+```
+
+### Allowing GET Requests
+In the scenario you absolutely must use GET requests as an allowed request method for authentication, you can override the protection provided with the followign config override:
+
+```ruby
+OmniAuth.config.allowed_request_methods = [:get, :post]
+```
+
+
 ## [v2.6.0](https://github.com/auth0/omniauth-auth0/tree/v2.6.0) (2021-04-01)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v2.5.0...v2.6.0)

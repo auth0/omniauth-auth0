@@ -3,6 +3,8 @@
 require 'spec_helper'
 require 'jwt'
 
+OmniAuth.config.allowed_request_methods = [:get, :post]
+
 RSpec.shared_examples 'site has valid domain url' do |url|
   it { expect(subject.site).to eq(url) }
 end
