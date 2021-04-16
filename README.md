@@ -2,7 +2,7 @@
 
 An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating with [Auth0](https://auth0.com). This strategy is based on the [OmniAuth OAuth2](https://github.com/omniauth/omniauth-oauth2) strategy.
 
-> :warning:  **Important security note for v2:** This solution uses a 3rd party library that had a [security issue(s)](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-9284) in v2. Please review the details of the vulnerability, including [Auth0](https://github.com/auth0/omniauth-auth0/issues/82 ) and other recommended [mitigations](https://github.com/omniauth/omniauth/wiki/Resolving-CVE-2015-9284), before implementing the solution in v2.  **Upgrading to v3 of this library resolves the issue.**
+> :warning:  **Important security note for v2:** This solution uses a 3rd party library that had a [security issue(s)](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-9284) in v2. Please review the details of the vulnerability, including [Auth0](https://github.com/auth0/omniauth-auth0/issues/82 ) and other recommended [mitigations](https://github.com/omniauth/omniauth/wiki/Resolving-CVE-2015-9284), before implementing the solution in v2.  **[Upgrading to v3](https://github.com/auth0/omniauth-auth0/pull/128) of this library resolves the issue.**
 
 [![CircleCI](https://img.shields.io/circleci/project/github/auth0/omniauth-auth0/master.svg)](https://circleci.com/gh/auth0/omniauth-auth0)
 [![codecov](https://codecov.io/gh/auth0/omniauth-auth0/branch/master/graph/badge.svg)](https://codecov.io/gh/auth0/omniauth-auth0)
