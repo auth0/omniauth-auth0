@@ -137,7 +137,7 @@ module OmniAuth
         return @raw_info if @raw_info
 
         if access_token["id_token"]
-          claims, header = jwt_validator.decode(access_token["id_token"])
+          claims, _header = jwt_validator.decode(access_token["id_token"])
           @raw_info = claims
         else
           userinfo_url = options.client_options.userinfo_url

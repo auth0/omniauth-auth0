@@ -66,7 +66,7 @@ module OmniAuth
           raise OmniAuth::Auth0::TokenValidationError.new('ID token could not be decoded')
         end
 
-        id_token, header = decode(jwt)
+        id_token, _header = decode(jwt)
         verify_claims(id_token, authorize_params)
 
         return id_token
@@ -121,9 +121,9 @@ module OmniAuth
 
       def extract_key(head)
         if head[:alg] == 'RS256'
-          key, alg = [rs256_decode_key(head[:kid]), head[:alg]]
+          _key, _alg = [rs256_decode_key(head[:kid]), head[:alg]]
         elsif head[:alg] == 'HS256'
-          key, alg = [@client_secret, head[:alg]]
+          _key, _alg = [@client_secret, head[:alg]]
         else
           raise OmniAuth::Auth0::TokenValidationError.new("Signature algorithm of #{head[:alg]} is not supported. Expected the ID token to be signed with RS256 or HS256")
         end
