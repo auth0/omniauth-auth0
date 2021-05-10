@@ -10,5 +10,3 @@ tmp/
 ## Environment normalization:
 /.bundle
 /vendor/bundle
-
-Gemfile.lock
