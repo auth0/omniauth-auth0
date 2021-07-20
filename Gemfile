@@ -22,5 +22,5 @@ group :test do
   gem 'rspec', '~> 3.5'
   gem 'codecov', require: false
   gem 'simplecov'
-  gem 'webmock'
+  gem 'webmock', '>= 3.12.2'
 end
