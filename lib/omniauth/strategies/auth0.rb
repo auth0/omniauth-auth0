@@ -101,7 +101,21 @@ module OmniAuth
 
       def build_access_token
         options.token_params[:headers] = { 'Auth0-Client' => telemetry_encoded }
-        super
+        verifier = request.params["code"]
+        Rails.logger.info "Auth0: building access_token #{DateTime.now}"
+        Rails.logger.info "Auth0: #{client.methods}"
+        Rails.logger.info "Auth0: #{client.options}"
+        Rails.logger.info "Auth0: #{client.auth_code.methods}"
+        Rails.logger.info "Auth0: #{client.auth_code.blank?}"
+        Rails.logger.info "Auth0: #{deep_symbolize(options.auth_token_params)}"
+        x = {:redirect_uri => callback_url}.merge(token_params.to_hash(:symbolize_keys => true))
+        Rails.logger.info "Auth0: X: #{x}"
+        resp = client.auth_code.get_token(verifier, {:redirect_uri => callback_url}.merge(token_params.to_hash(:symbolize_keys => true)), deep_symbolize(options.auth_token_params))
+        Rails.logger.info "\n\n\n\n\n Auth0: resp: #{resp} METHODS: #{resp.methods} \n\n\n\n\n"
+        Rails.logger.info "\n\n\n\n\n Auth0: HEADERS: #{resp.headers} \n\n\n\n\n"
+        Rails.logger.info "\n\n\n\n\n Auth0: OPTIONS: #{resp.options} \n\n\n\n\n"
+        Rails.logger.info "\n\n\n\n\n Auth0: access_token: #{resp.token} \n\n\n\n\n"
+        return resp
       end
 
       # Declarative override for the request phase of authentication
@@ -122,7 +136,14 @@ module OmniAuth
       end
 
       def callback_phase
+        Rails.logger.info "Auth0: Callback phase"
+        error = request.params["error_reason"] || request.params["error"]
+        Rails.logger.info "Auth0 Error: #{error}"
+        Rails.logger.info "Auth0 Request: #{request.params}"
+        Rails.logger.info "\n\n\n\n\n Auth0 HASH: #{auth_hash}"
         super
+        # env['omniauth.auth'] = auth_hash
+        # call_app!
       rescue OmniAuth::Auth0::TokenValidationError => e
         fail!(:token_validation_error, e)
       end
