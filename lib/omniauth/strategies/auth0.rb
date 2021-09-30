@@ -140,7 +140,7 @@ module OmniAuth
         error = request.params["error_reason"] || request.params["error"]
         Rails.logger.info "Auth0 Error: #{error}"
         Rails.logger.info "Auth0 Request: #{request.params}"
-        Rails.logger.info "\n\n\n\n\n Auth0 HASH: #{auth_hash}"
+        # Rails.logger.info "\n\n\n\n\n Auth0 HASH: #{auth_hash}"
         super
         # env['omniauth.auth'] = auth_hash
         # call_app!
