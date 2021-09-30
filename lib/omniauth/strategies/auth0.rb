@@ -140,9 +140,10 @@ module OmniAuth
         error = request.params["error_reason"] || request.params["error"]
         Rails.logger.info "Auth0 Error: #{error}"
         Rails.logger.info "Auth0 Request: #{request.params}"
-        Rails.logger.info "\n\n\n\n\n Auth0 HASH: #{auth_hash}"
+        # Rails.logger.info "\n\n\n\n\n Auth0 HASH: #{auth_hash}"
         # env['omniauth.auth'] = auth_hash
         # call_app!
+        Rails.logger.info "Auth0 before super call"
         super
       rescue OmniAuth::Auth0::TokenValidationError => e
         fail!(:token_validation_error, e)
