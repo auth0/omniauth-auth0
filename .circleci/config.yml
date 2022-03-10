@@ -13,7 +13,7 @@ executors:
         type: string
         default: *default_rubyversion
     docker:
-      - image: circleci/ruby:<< parameters.rubyversion >>
+      - image: cimg/ruby:<< parameters.rubyversion >>
 
 jobs:
   run-tests:
