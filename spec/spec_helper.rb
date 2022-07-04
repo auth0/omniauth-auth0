@@ -5,8 +5,8 @@ require 'simplecov'
 SimpleCov.start
 
 if ENV['CI'] == 'true'
-  require 'simplecov-codertura'
-  SimpleCov.formatter = SimpleCov::Formatter::CoderutraFormatter
+  require 'simplecov-cobertura'
+  SimpleCov.formatter = SimpleCov::Formatter::CoberutraFormatter
 end
 
 require 'rspec'
