@@ -6,7 +6,7 @@ SimpleCov.start
 
 if ENV['CI'] == 'true'
   require 'simplecov-cobertura'
-  SimpleCov.formatter = SimpleCov::Formatter::CoberutraFormatter
+  SimpleCov.formatter = SimpleCov::Formatter::CoberturaFormatter
 end
 
 require 'rspec'
