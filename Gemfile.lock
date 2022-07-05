@@ -11,8 +11,6 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     ast (2.4.2)
-    codecov (0.6.0)
-      simplecov (>= 0.15, < 0.22)
     coderay (1.1.3)
     crack (0.4.5)
       rexml
@@ -123,6 +121,9 @@ GEM
       docile (~> 1.1)
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
+    simplecov-cobertura (2.1.0)
+      rexml
+      simplecov (~> 0.19)
     simplecov-html (0.12.3)
     simplecov_json_formatter (0.1.4)
     sinatra (2.2.0)
@@ -150,7 +151,6 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
-  codecov
   dotenv
   gem-release
   guard-rspec
@@ -163,7 +163,7 @@ DEPENDENCIES
   rspec (~> 3.5)
   rubocop
   shotgun
-  simplecov
+  simplecov-cobertura
   sinatra
   thin
   webmock (>= 3.12.2)
