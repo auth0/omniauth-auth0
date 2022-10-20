@@ -7,7 +7,7 @@ An [OmniAuth](https://github.com/intridea/omniauth) strategy for authenticating 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fauth0%2Fomniauth-auth0.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fauth0%2Fomniauth-auth0?ref=badge_shield)
 
 <div>
-📚 <a href="#documentation">Documentation</a> - 🚀 <a href="#getting-started">Getting started</a> - 💻 <a href="#api-reference">API reference</a> - 💬 <a href="#feedback">Feedback</a>
+📚 <a href="#documentation">Documentation</a> - 🚀 <a href="#getting-started">Getting started</a> - 💻 <a href="https://www.rubydoc.info/gems/omniauth-auth0">API reference</a> - 💬 <a href="#feedback">Feedback</a>
 </div>
 
 ## Documentation
