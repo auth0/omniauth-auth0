@@ -133,48 +133,6 @@ To redirect your users to Auth0 for authentication, redirect your users to the `
 <%= button_to 'Login', '/auth/auth0', method: :post %>
 ```
 
-### Authentication hash
-
-The Auth0 strategy will provide the standard OmniAuth hash attributes:
-
-- `:provider` - the name of the strategy, in this case `auth0`
-- `:uid` - the user identifier
-- `:info` - the result of the call to `/userinfo` using OmniAuth standard attributes
-- `:credentials` - tokens requested and data
-- `:extra` - Additional info obtained from calling `/userinfo` in the `:raw_info` property
-
-```ruby
-{
-  :provider => 'auth0',
-  :uid => 'auth0|USER_ID',
-  :info => {
-    :name => 'John Foo',
-    :email => 'johnfoo@example.org',
-    :nickname => 'john',
-    :image => 'https://example.org/john.jpg'
-  },
-  :credentials => {
-    :token => 'ACCESS_TOKEN',
-    :expires_at => 1485373937,
-    :expires => true,
-    :refresh_token => 'REFRESH_TOKEN',
-    :id_token => 'JWT_ID_TOKEN',
-    :token_type => 'bearer',
-  },
-  :extra => {
-    :raw_info => {
-      :email => 'johnfoo@example.org',
-      :email_verified => 'true',
-      :name => 'John Foo',
-      :picture => 'https://example.org/john.jpg',
-      :user_id => 'auth0|USER_ID',
-      :nickname => 'john',
-      :created_at => '2014-07-15T17:19:50.387Z'
-    }
-  }
-}
-```
-
 ## Feedback
 
 ### Contributing
