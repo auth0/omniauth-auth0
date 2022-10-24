@@ -18,7 +18,7 @@ end
 group :test do
   gem 'guard-rspec', require: false
   gem 'listen', '~> 3'
-  gem 'rack-test'
+  gem 'rack-test', '>= 2.0.0'
   gem 'rspec', '~> 3.5'
   gem 'simplecov-cobertura'
   gem 'webmock', '>= 3.12.2'
