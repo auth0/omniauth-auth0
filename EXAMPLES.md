@@ -1,5 +1,4 @@
-- [Example of the resulting authentication hash](#example-of-the-resulting-authentication-hash)
-
+* [Example of the resulting authentication hash](#example-of-the-resulting-authentication-hash)
 * [Send additional authentication parameters](#send-additional-authentication-parameters)
 * [Query Parameter Options](#query-parameter-options)
 * [Auth0 Organizations](#auth0-organizations)
