@@ -198,6 +198,19 @@ describe OmniAuth::Strategies::Auth0 do
       expect(redirect_url).not_to have_query('invitation')
     end
 
+    def session
+      session_cookie = last_response.cookies['rack.session'].first
+      session_data, _, _ = session_cookie.rpartition('--')
+      decoded_session_data = Base64.decode64(session_data)
+      Marshal.load(decoded_session_data)
+    end
+
+    it "stores session['authorize_params'] as a plain Ruby Hash" do
+      get '/auth/auth0'
+
+      expect(session['authorize_params'].class).to eq(::Hash)
+    end
+
     describe 'callback' do
       let(:access_token) { 'access token' }
       let(:expires_in) { 2000 }
