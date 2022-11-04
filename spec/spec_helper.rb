@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path(__dir__)
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
+require 'multi_json'
 require 'simplecov'
 SimpleCov.start
 
@@ -22,6 +23,8 @@ RSpec.configure do |config|
   config.include WebMock::API
   config.include Rack::Test::Methods
   config.extend OmniAuth::Test::StrategyMacros, type: :strategy
+  config.filter_run focus: true
+  config.run_all_when_everything_filtered = true
 
   def app
     @app || make_application
@@ -39,7 +42,7 @@ RSpec.configure do |config|
       configure do
         enable :sessions
         set :show_exceptions, false
-        set :session_secret, 'TEST'
+        set :session_secret, '9771aff2c634257053c62ba072c54754bd2cc92739b37e81c3eda505da48c2ec'
       end
 
       use OmniAuth::Builder do

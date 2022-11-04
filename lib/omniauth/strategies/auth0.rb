@@ -94,7 +94,7 @@ module OmniAuth
         params[:leeway] = 60 unless params[:leeway]
 
         # Store authorize params in the session for token verification
-        session['authorize_params'] = params.to_hash
+        session['authorize_params'] = params
 
         params
       end
