@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    omniauth-auth0 (3.0.0)
+    omniauth-auth0 (3.1.0)
       omniauth (~> 2)
       omniauth-oauth2 (~> 1)
 
