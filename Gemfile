@@ -2,24 +2,25 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'gem-release'
-gem 'jwt'
-gem 'rake'
+gem 'gem-release', '~> 2'
+gem 'jwt', '~> 2'
+gem 'rake', '~> 13'
 
 group :development do
-  gem 'dotenv'
-  gem 'pry'
-  gem 'rubocop', require: false
-  gem 'shotgun'
-  gem 'sinatra'
-  gem 'thin'
+  gem 'dotenv', '~> 2'
+  gem 'pry', '~> 0'
+  gem 'rubocop', '~> 1', require: false
+  gem 'shotgun', '~> 0'
+  gem 'sinatra', '~> 2'
+  gem 'thin', '~> 1'
 end
 
 group :test do
-  gem 'guard-rspec', require: false
+  gem 'guard-rspec', '~> 4', require: false
   gem 'listen', '~> 3'
-  gem 'rack-test', '>= 2.0.0'
-  gem 'rspec', '~> 3.5'
-  gem 'simplecov-cobertura'
-  gem 'webmock', '>= 3.12.2'
+  gem 'rack-test', '~> 2'
+  gem 'rspec', '~> 3'
+  gem 'simplecov-cobertura', '~> 2'
+  gem 'webmock', '~> 3'
+  gem 'multi_json', '~> 1'
 end

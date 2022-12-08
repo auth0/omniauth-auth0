@@ -357,7 +357,7 @@ describe OmniAuth::Auth0::JWTValidator do
         message: "Nonce (nonce) claim value mismatch in the ID token; expected (noncey), found (mismatch)"
       }))
     end
-    
+
     it 'should fail when “aud” is an array of strings and azp claim is not present' do
       aud = [
         client_id,
@@ -544,7 +544,7 @@ describe OmniAuth::Auth0::JWTValidator do
       expect do
         verified_token = make_jwt_validator(opt_domain: domain).verify(token)
       end.to raise_error(an_instance_of(JWT::VerificationError).and having_attributes({
-        message: "Signature verification raised"
+        message: "Signature verification failed"
       }))
     end
 
