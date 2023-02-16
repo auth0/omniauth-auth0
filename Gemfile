@@ -10,15 +10,15 @@ group :development do
   gem 'dotenv', '~> 2'
   gem 'pry', '~> 0'
   gem 'rubocop', '~> 1', require: false
-  gem 'shotgun', '~> 0'
-  gem 'sinatra', '~> 2'
+  gem 'shotgun', '~> 0', '>= 0.9.2'
+  gem 'sinatra', '~> 2', '>= 2.2.3'
   gem 'thin', '~> 1'
 end
 
 group :test do
   gem 'guard-rspec', '~> 4', require: false
   gem 'listen', '~> 3'
-  gem 'rack-test', '~> 2'
+  gem 'rack-test', '~> 2', '>= 2.0.2'
   gem 'rspec', '~> 3'
   gem 'simplecov-cobertura', '~> 2'
   gem 'webmock', '~> 3'
