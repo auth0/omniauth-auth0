@@ -11,7 +11,7 @@ group :development do
   gem 'pry', '~> 0'
   gem 'rubocop', '~> 1', require: false
   gem 'shotgun', '~> 0', '>= 0.9.2'
-  gem 'sinatra', '~> 2', '>= 2.2.3'
+  gem 'sinatra', '~> 2', '>= 2.2.4'
   gem 'thin', '~> 1'
 end
 
