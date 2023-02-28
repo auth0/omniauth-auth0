@@ -43,6 +43,7 @@ RSpec.configure do |config|
         enable :sessions
         set :show_exceptions, false
         set :session_secret, '9771aff2c634257053c62ba072c54754bd2cc92739b37e81c3eda505da48c2ec'
+        set :session_store, Rack::Session::Cookie
       end
 
       use OmniAuth::Builder do
