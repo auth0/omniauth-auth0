@@ -1,5 +1,11 @@
 # Change Log
 
+## [v3.1.1](https://github.com/auth0/omniauth-auth0/tree/v3.1.1) (2023-03-01)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v3.1.0...v3.1.1)
+
+**Fixed**
+- fix: upgrade to Sinatra 3 and use Rack::Session::Cookie in tests [\#165](https://github.com/auth0/omniauth-auth0/pull/165) ([stevehobbsdev](https://github.com/stevehobbsdev))
+
 ## [v3.1.0](https://github.com/auth0/omniauth-auth0/tree/v3.1.0) (2022-11-04)
 
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v3.0.0...v3.1.0)
