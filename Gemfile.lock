@@ -152,6 +152,8 @@ GEM
 
 PLATFORMS
   x86_64-linux
+  aarch64-linux
+  arm64-darwin-21
 
 DEPENDENCIES
   bundler
