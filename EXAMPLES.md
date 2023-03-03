@@ -79,6 +79,7 @@ In some scenarios, you may need to pass specific query parameters to `/authorize
 - `screen_hint` (only relevant to New Universal Login Experience)
 - `organization`
 - `invitation`
+- `ui_locales` (only relevant to New Universal Login Experience)
 
 Simply pass these query parameters to your OmniAuth redirect endpoint to enable their behavior.
 
