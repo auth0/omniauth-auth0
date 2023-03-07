@@ -1,4 +1,5 @@
 version: 2.1
+
 jobs:
   run-tests:
     docker:
@@ -35,7 +36,15 @@ jobs:
             snyk monitor --org=auth0-sdks
             fi
           when: always
-
+  publish:
+    docker:
+      - image: cimg/ruby:2.7
+    steps:
+      - checkout
+      - run:
+          name: Build and publish gem to gemfury
+          command: ./.circleci/publish.sh
+          
 workflows:
   tests:
     jobs:
@@ -48,3 +57,14 @@ workflows:
           context: snyk-env 
           requires: 
             - run-tests
+      - publish:
+          requires:
+            - run-tests
+          context:
+            - dod-pypi
+          filters:
+            # only publish gem after cutting tag
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
