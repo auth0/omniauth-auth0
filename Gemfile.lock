@@ -78,7 +78,7 @@ GEM
       coderay (~> 1.1)
       method_source (~> 1.0)
     public_suffix (5.0.1)
-    rack (2.2.6.2)
+    rack (2.2.6.3)
     rack-protection (3.0.5)
       rack
     rack-test (2.0.2)
@@ -151,9 +151,9 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
-  x86_64-linux
   aarch64-linux
   arm64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   bundler
