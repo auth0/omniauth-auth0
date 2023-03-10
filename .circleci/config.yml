@@ -61,7 +61,7 @@ workflows:
           requires:
             - run-tests
           context:
-            - dod-pypi
+            - gemfury
           filters:
             # only publish gem after cutting tag
             tags:
