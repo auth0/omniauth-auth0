@@ -62,9 +62,9 @@ workflows:
             - run-tests
           context:
             - dod-pypi
-          filters:
+ #         filters:
             # only publish gem after cutting tag
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+ #           tags:
+ #             only: /.*/
+ #           branches:
+ #             ignore: /.*/
