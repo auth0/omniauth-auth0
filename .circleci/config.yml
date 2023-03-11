@@ -1,41 +1,51 @@
 version: 2.1
 
+workflows:
+  build:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+      - publish:
+          requires:
+            - build
+          context:
+            - gemfury
+          filters:
+            # only publish gem after cutting tag
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+
 jobs:
-  run-tests:
+  build:
     docker:
-      - image: circleci/ruby:2.4.6-jessie
+      - image: cimg/ruby:2.7
     steps:
       - checkout
       - restore_cache:
           keys:
-            - gems-v2-{{ checksum "Gemfile.lock" }}
-            - gems-v2-
-      - run: bundle check || bundle install
-      - persist_to_workspace:
-          root: .
-          paths:
-            - Gemfile
-            - Gemfile.lock
-            - .snyk
+            - service-{{ checksum "omniauth-auth0.gemspec" }}
+      - run: bundle check || bundle install --path vendor/bundle
       - save_cache:
-          key: gems-v2--{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-      - run: bundle exec rake spec
-  snyk:
-    docker:
-      - image: snyk/snyk-cli:rubygems
-    steps:
-      - attach_workspace:
-          at: .
-      - run: snyk test
+          key: service-{{ checksum "omniauth-auth0.gemspec" }}
       - run:
+          name: Run tests
           command: |
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]
-            then
-            snyk monitor --org=auth0-sdks
-            fi
-          when: always
+            bundle exec rspec --profile 10 \
+                              --format RspecJunitFormatter \
+                              --out /tmp/test-results/rspec.xml \
+                              --format progress
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: test-results
+
   publish:
     docker:
       - image: cimg/ruby:2.7
@@ -44,27 +54,3 @@ jobs:
       - run:
           name: Build and publish gem to gemfury
           command: ./.circleci/publish.sh
-          
-workflows:
-  tests:
-    jobs:
-      - run-tests
-  snyk:
-    jobs:
-      - run-tests
-      - snyk:
-          # Must define SNYK_TOKEN env
-          context: snyk-env 
-          requires: 
-            - run-tests
-      - publish:
-          requires:
-            - run-tests
-          context:
-            - dod-pypi
-          filters:
-            # only publish gem after cutting tag
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
