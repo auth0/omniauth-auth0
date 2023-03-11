@@ -1,5 +1,34 @@
 version: 2.1
 
+commands:
+  install-bundler:
+    steps:
+      - run: gem install bundler -v 2.1.4
+      
+workflows:
+  tests:
+    jobs:
+      - run-tests
+  snyk:
+    jobs:
+      - run-tests
+      - snyk:
+          # Must define SNYK_TOKEN env
+          context: snyk-env 
+          requires: 
+            - run-tests
+      - publish:
+          requires:
+            - run-tests
+          context:
+            - gemfury
+          filters:
+            # only publish gem after cutting tag
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+
 jobs:
   run-tests:
     docker:
@@ -45,26 +74,4 @@ jobs:
           name: Build and publish gem to gemfury
           command: ./.circleci/publish.sh
           
-workflows:
-  tests:
-    jobs:
-      - run-tests
-  snyk:
-    jobs:
-      - run-tests
-      - snyk:
-          # Must define SNYK_TOKEN env
-          context: snyk-env 
-          requires: 
-            - run-tests
-      - publish:
-          requires:
-            - run-tests
-          context:
-            - gemfury
-          filters:
-            # only publish gem after cutting tag
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
+
