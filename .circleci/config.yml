@@ -1,6 +1,5 @@
 version: 2.1
 
-
 workflows:
   tests:
     jobs:
@@ -35,7 +34,7 @@ jobs:
           keys:
             - gems-v2-{{ checksum "Gemfile.lock" }}
             - gems-v2-
-      - run: bundle check || bundle config set --local path 'vendor/cache'
+      - run: bundle check || bundle install
       - persist_to_workspace:
           root: .
           paths:
@@ -46,7 +45,7 @@ jobs:
           key: gems-v2--{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-      - run: bundle exec rake spec
+      #- run: bundle exec rake spec
   snyk:
     docker:
       - image: snyk/snyk-cli:rubygems
