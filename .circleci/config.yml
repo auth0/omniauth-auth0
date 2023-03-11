@@ -20,7 +20,7 @@ workflows:
               ignore: /.*/
 
 jobs:
-  test:
+  build:
     docker:
       - image: cimg/ruby:2.7
     steps:
