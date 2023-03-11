@@ -1,10 +1,6 @@
 version: 2.1
 
-commands:
-  install-bundler:
-    steps:
-      - run: gem install bundler -v 2.1.4
-      
+
 workflows:
   tests:
     jobs:
@@ -39,7 +35,7 @@ jobs:
           keys:
             - gems-v2-{{ checksum "Gemfile.lock" }}
             - gems-v2-
-      - run: bundle check || bundle install
+      - run: bundle check || bundle config set --local path 'vendor/bundle'
       - persist_to_workspace:
           root: .
           paths:
