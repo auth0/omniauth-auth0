@@ -44,7 +44,7 @@ jobs:
           paths:
             - vendor/bundle
       - run: bundle exec rake spec
-      - codecov/upload
+      - codecov/upload:
         file: /home/circleci/project/coverage/coverage.xml
 
 workflows:
