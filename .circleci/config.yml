@@ -45,6 +45,7 @@ jobs:
             - vendor/bundle
       - run: bundle exec rake spec
       - codecov/upload
+        file: /home/circleci/project/coverage/coverage.xml
 
 workflows:
   tests:
