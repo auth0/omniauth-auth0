@@ -529,6 +529,24 @@ describe OmniAuth::Auth0::JWTValidator do
         })))
       end
 
+      it 'should fail when authorize params has organization but token org_name does not match' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode,
+          org_name: 'another-organization'
+        }
+
+        token = make_hs256_token(payload)
+        expect do
+          jwt_validator.verify(token, { organization: 'my-organization' })
+        end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and(having_attributes({
+          message: "Organization Name (org_name) claim value mismatch in the ID token; expected 'my-organization', found 'another-organization'"
+        })))
+      end
+
       it 'should not fail when correctly given an organization ID' do
         payload = {
           iss: "https://#{domain}/",
