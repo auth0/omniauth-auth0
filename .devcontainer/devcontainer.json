@@ -1,6 +1,6 @@
 {
 	"name": "Ruby",
-	"image": "mcr.microsoft.com/devcontainers/ruby:3.1",
+	"image": "mcr.microsoft.com/devcontainers/ruby:3.2",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
 			"version": "lts"
