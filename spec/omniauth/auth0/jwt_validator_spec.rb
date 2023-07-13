@@ -476,7 +476,7 @@ describe OmniAuth::Auth0::JWTValidator do
       expect(id_token['auth_time']).to eq(auth_time)
     end
 
-    context 'Organization claim validation', focus: true do
+    context 'Organization claim validation' do
       it 'should fail when authorize params has organization but org_id is missing in the token' do
         payload = {
           iss: "https://#{domain}/",
