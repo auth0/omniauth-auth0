@@ -476,41 +476,101 @@ describe OmniAuth::Auth0::JWTValidator do
       expect(id_token['auth_time']).to eq(auth_time)
     end
 
-    it 'should fail when authorize params has organization but org_id is missing in the token' do
-      payload = {
-        iss: "https://#{domain}/",
-        sub: 'sub',
-        aud: client_id,
-        exp: future_timecode,
-        iat: past_timecode
-      }
+    context 'Organization claim validation', focus: true do
+      it 'should fail when authorize params has organization but org_id is missing in the token' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode
+        }
 
-      token = make_hs256_token(payload)
-      expect do
-        jwt_validator.verify(token, { organization: 'Test Org' })
-      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
-        message: "Organization Id (org_id) claim must be a string present in the ID token"
-      }))
+        token = make_hs256_token(payload)
+        expect do
+          jwt_validator.verify(token, { organization: 'org_123' })
+        end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
+          message: "Organization Id (org_id) claim must be a string present in the ID token"
+        }))
+      end
+
+      it 'should fail when authorize params has organization but org_name is missing in the token' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode
+        }
+
+        token = make_hs256_token(payload)
+        expect do
+          jwt_validator.verify(token, { organization: 'my-organization' })
+        end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and(having_attributes({
+          message: 'Organization Name (org_name) claim must be a string present in the ID token'
+        })))
+      end
+
+      it 'should fail when authorize params has organization but token org_id does not match' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode,
+          org_id: 'org_5678'
+        }
+
+        token = make_hs256_token(payload)
+        expect do
+          jwt_validator.verify(token, { organization: 'org_1234' })
+        end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and(having_attributes({
+          message: "Organization Id (org_id) claim value mismatch in the ID token; expected 'org_1234', found 'org_5678'"
+        })))
+      end
+
+      it 'should not fail when correctly given an organization ID' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode,
+          org_id: 'org_1234'
+        }
+
+        token = make_hs256_token(payload)
+        jwt_validator.verify(token, { organization: 'org_1234' })
+      end
+
+      it 'should not fail when correctly given an organization name' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode,
+          org_name: 'my-organization'
+        }
+
+        token = make_hs256_token(payload)
+        jwt_validator.verify(token, { organization: 'my-organization' })
+      end
+
+      it 'should not fail when given an organization name in a different casing' do
+        payload = {
+          iss: "https://#{domain}/",
+          sub: 'sub',
+          aud: client_id,
+          exp: future_timecode,
+          iat: past_timecode,
+          org_name: 'MY-ORGANIZATION'
+        }
+
+        token = make_hs256_token(payload)
+        jwt_validator.verify(token, { organization: 'my-organization' })
+      end
     end
-
-    it 'should fail when authorize params has organization but token org_id does not match' do
-      payload = {
-        iss: "https://#{domain}/",
-        sub: 'sub',
-        aud: client_id,
-        exp: future_timecode,
-        iat: past_timecode,
-        org_id: 'Wrong Org'
-      }
-
-      token = make_hs256_token(payload)
-      expect do
-        jwt_validator.verify(token, { organization: 'Test Org' })
-      end.to raise_error(an_instance_of(OmniAuth::Auth0::TokenValidationError).and having_attributes({
-        message: "Organization Id (org_id) claim value mismatch in the ID token; expected 'Test Org', found 'Wrong Org'"
-      }))
-    end
-
     it 'should fail for RS256 token when kid is incorrect' do
       domain = 'example.org'
       sub = 'abc123'
