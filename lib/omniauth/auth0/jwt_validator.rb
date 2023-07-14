@@ -7,6 +7,7 @@ require 'omniauth/auth0/errors'
 module OmniAuth
   module Auth0
     # JWT Validator class
+    # rubocop:disable Metrics/
     class JWTValidator
       attr_accessor :issuer, :domain
 
@@ -264,12 +265,27 @@ module OmniAuth
       end
 
       def verify_org(id_token, organization)
-        if organization
+        return unless organization
+
+        validate_as_id = organization.start_with? 'org_'
+
+        if validate_as_id
           org_id = id_token['org_id']
           if !org_id || !org_id.is_a?(String)
-            raise OmniAuth::Auth0::TokenValidationError.new("Organization Id (org_id) claim must be a string present in the ID token")
+            raise OmniAuth::Auth0::TokenValidationError, 
+                  'Organization Id (org_id) claim must be a string present in the ID token'
           elsif org_id != organization
-            raise OmniAuth::Auth0::TokenValidationError.new("Organization Id (org_id) claim value mismatch in the ID token; expected '#{organization}', found '#{org_id}'")
+            raise OmniAuth::Auth0::TokenValidationError, 
+                  "Organization Id (org_id) claim value mismatch in the ID token; expected '#{organization}', found '#{org_id}'"
+          end
+        else
+          org_name = id_token['org_name']
+          if !org_name || !org_name.is_a?(String)
+            raise OmniAuth::Auth0::TokenValidationError,
+                  'Organization Name (org_name) claim must be a string present in the ID token'
+          elsif org_name.downcase != organization.downcase
+            raise OmniAuth::Auth0::TokenValidationError,
+                  "Organization Name (org_name) claim value mismatch in the ID token; expected '#{organization}', found '#{org_name}'"
           end
         end
       end

@@ -125,25 +125,38 @@ When passing `openid` to the scope and `organization` to the authorize params, y
 
 ### Validating Organizations when using Organization Login Prompt
 
-When Organization login prompt is enabled on your application, but you haven't specified an Organization for the application's authorization endpoint, the `org_id` claim will be present on the ID token, and should be validated to ensure that the value received is expected or known.
+When Organization login prompt is enabled on your application, but you haven't specified an Organization for the application's authorization endpoint, `org_id` or `org_name` claims will be present on the ID and access tokens, and should be validated to ensure that the value received is expected or known.
 
 Normally, validating the issuer would be enough to ensure that the token was issued by Auth0, and this check is performed by the SDK. However, in the case of organizations, additional checks should be made so that the organization within an Auth0 tenant is expected.
 
-In particular, the `org_id` claim should be checked to ensure it is a value that is already known to the application. This could be validated against a known list of organization IDs, or perhaps checked in conjunction with the current request URL. e.g. the sub-domain may hint at what organization should be used to validate the ID Token.
+In particular, the `org_id` and `org_name` claims should be checked to ensure it is a value that is already known to the application. This could be validated against a known list of organization IDs, or perhaps checked in conjunction with the current request URL. e.g. the sub-domain may hint at what organization should be used to validate the ID Token. For `org_id`, this should be a **case-sensitive, exact match check**. For `org_name`, this should be a **case-insentive check**.
+
+The decision to validate the `org_id` or `org_name` claim is determined by the expected organization ID or name having an `org_` prefix.
 
 Here is an example using it in your `callback` method
 
 ```ruby
-  def callback
-    claims = request.env['omniauth.auth']['extra']['raw_info']
+def callback
+  claims = request.env['omniauth.auth']['extra']['raw_info']
 
-    if claims["org"] && claims["org"] !== expected_org
+  validate_as_id = expected_org.start_with?('org_')
+
+  if validate_as_id
+    if claims["org_id"] && claims["org_id"] !== expected_org
+      redirect_to '/unauthorized', status: 401
+    else
+      session[:userinfo] = claims
+      redirect_to '/dashboard'
+    end
+  else
+    if claims["org_name"] && claims["org_name"].downcase !== expected_org.downcase
       redirect_to '/unauthorized', status: 401
     else
       session[:userinfo] = claims
       redirect_to '/dashboard'
     end
   end
+end
 ```
 
 For more information, please read [Work with Tokens and Organizations](https://auth0.com/docs/organizations/using-tokens) on Auth0 Docs.
