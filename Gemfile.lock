@@ -19,7 +19,7 @@ GEM
     docile (1.4.0)
     dotenv (2.8.1)
     eventmachine (1.2.7)
-    faraday (2.7.7)
+    faraday (2.7.10)
       faraday-net_http (>= 2.0, < 3.1)
       ruby2_keywords (>= 0.0.4)
     faraday-net_http (3.0.2)
@@ -44,6 +44,7 @@ GEM
     hashie (5.0.0)
     json (2.6.3)
     jwt (2.7.1)
+    language_server-protocol (3.17.0.3)
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -78,7 +79,7 @@ GEM
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    public_suffix (5.0.1)
+    public_suffix (5.0.3)
     racc (1.7.1)
     rack (2.2.7)
     rack-protection (3.0.6)
@@ -101,12 +102,13 @@ GEM
     rspec-expectations (3.12.3)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
-    rspec-mocks (3.12.5)
+    rspec-mocks (3.12.6)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.12.0)
-    rspec-support (3.12.0)
-    rubocop (1.52.1)
+    rspec-support (3.12.1)
+    rubocop (1.54.2)
       json (~> 2.3)
+      language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
       parser (>= 3.2.2.3)
       rainbow (>= 2.2.2, < 4.0)
@@ -179,4 +181,4 @@ DEPENDENCIES
   webmock (~> 3)
 
 BUNDLED WITH
-   2.3.26
+   2.3.7

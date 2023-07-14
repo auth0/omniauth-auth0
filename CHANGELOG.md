@@ -1,5 +1,14 @@
 # Change Log
 
+## [v3.2.0](https://github.com/auth0/omniauth-auth0/tree/v3.2.0) (2023-07-14)
+[Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v3.1.0...v3.2.0)
+
+**Added**
+- [SDK-4410] Support Organization Name in JWT validation [\#184](https://github.com/auth0/omniauth-auth0/pull/184) ([stevehobbsdev](https://github.com/stevehobbsdev))
+
+**Fixed**
+- fix: upgrade to Sinatra 3 and use Rack::Session::Cookie in tests [\#165](https://github.com/auth0/omniauth-auth0/pull/165) ([stevehobbsdev](https://github.com/stevehobbsdev))
+
 ## [v3.1.1](https://github.com/auth0/omniauth-auth0/tree/v3.1.1) (2023-03-01)
 [Full Changelog](https://github.com/auth0/omniauth-auth0/compare/v3.1.0...v3.1.1)
 
