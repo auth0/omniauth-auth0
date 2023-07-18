@@ -283,7 +283,7 @@ module OmniAuth
           if !org_name || !org_name.is_a?(String)
             raise OmniAuth::Auth0::TokenValidationError,
                   'Organization Name (org_name) claim must be a string present in the ID token'
-          elsif org_name.downcase != organization.downcase
+          elsif org_name != organization.downcase
             raise OmniAuth::Auth0::TokenValidationError,
                   "Organization Name (org_name) claim value mismatch in the ID token; expected '#{organization}', found '#{org_name}'"
           end
