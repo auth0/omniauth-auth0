@@ -582,11 +582,11 @@ describe OmniAuth::Auth0::JWTValidator do
           aud: client_id,
           exp: future_timecode,
           iat: past_timecode,
-          org_name: 'MY-ORGANIZATION'
+          org_name: 'my-organization'
         }
 
         token = make_hs256_token(payload)
-        jwt_validator.verify(token, { organization: 'my-organization' })
+        jwt_validator.verify(token, { organization: 'MY-ORGANIZATION' })
       end
     end
     it 'should fail for RS256 token when kid is incorrect' do
