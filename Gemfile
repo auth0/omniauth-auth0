@@ -2,7 +2,6 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'gem-release', '~> 2'
 gem 'jwt', '~> 2'
 gem 'rake', '~> 13'
 
