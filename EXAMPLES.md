@@ -129,7 +129,7 @@ When Organization login prompt is enabled on your application, but you haven't s
 
 Normally, validating the issuer would be enough to ensure that the token was issued by Auth0, and this check is performed by the SDK. However, in the case of organizations, additional checks should be made so that the organization within an Auth0 tenant is expected.
 
-In particular, the `org_id` and `org_name` claims should be checked to ensure it is a value that is already known to the application. This could be validated against a known list of organization IDs, or perhaps checked in conjunction with the current request URL. e.g. the sub-domain may hint at what organization should be used to validate the ID Token. For `org_id`, this should be a **case-sensitive, exact match check**. For `org_name`, this should be a **case-insentive check**.
+In particular, the `org_id` and `org_name` claims should be checked to ensure it is a value that is already known to the application. This could be validated against a known list of organization IDs, or perhaps checked in conjunction with the current request URL. e.g. the sub-domain may hint at what organization should be used to validate the ID Token. For `org_id`, this should be a **case-sensitive, exact match check**. For `org_name`, this should be a **case-insensitive check**.
 
 The decision to validate the `org_id` or `org_name` claim is determined by the expected organization ID or name having an `org_` prefix.
 
@@ -167,7 +167,7 @@ Auth0 Organizations allow users to be invited using emailed links, which will di
 
 When the user arrives at your application using an invite link, you can expect three query parameters to be provided: `invitation`, `organization`, and `organization_name`. These will always be delivered using a GET request.
 
-You can then supply those parametrs to a `button_to` or `link_to` helper
+You can then supply those parameters to a `button_to` or `link_to` helper
 
 ```ruby
 <%=
