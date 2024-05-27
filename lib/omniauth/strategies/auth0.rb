@@ -84,9 +84,8 @@ module OmniAuth
       # Define the parameters used for the /authorize endpoint
       def authorize_params
         params = super
-        %w[connection connection_scope prompt screen_hint login_hint organization invitation ui_locales].each do |key|
-          params[key] = request.params[key] if request.params.key?(key)
-        end
+
+        params.merge! request.params.select{|k,b| is_authorized_param?(k)}
 
         # Generate nonce
         params[:nonce] = SecureRandom.hex
@@ -128,6 +127,12 @@ module OmniAuth
       end
 
       private
+      def is_authorized_param?(param_key)
+        authorized_keys = %w[connection connection_scope prompt screen_hint login_hint organization invitation ui_locales]
+
+        param_key.start_with?("ext-") || authorized_keys.include?(param_key)
+      end
+
       def jwt_validator
         @jwt_validator ||= OmniAuth::Auth0::JWTValidator.new(options)
       end
