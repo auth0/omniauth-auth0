@@ -58,6 +58,7 @@ development:
   auth0_domain: <YOUR_DOMAIN>
   auth0_client_id: <YOUR_CLIENT_ID>
   auth0_client_secret: <YOUR AUTH0 CLIENT SECRET>
+  auth0_audience: <YOUR AUTH0 API AUDIENCE> # optional
 ```
 
 ### Create the initializer
@@ -75,7 +76,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     AUTH0_CONFIG['auth0_domain'],
     callback_path: '/auth/auth0/callback',
     authorize_params: {
-      scope: 'openid profile'
+      scope: 'openid profile',
+      audience: 'AUTH0_CONFIG['auth0_audience']' #optional, i.e. if you need JWT tokens for your API 
     }
   )
 end
