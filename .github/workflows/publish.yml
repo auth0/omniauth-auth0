@@ -12,8 +12,21 @@ permissions:
   contents: read
 
 jobs:
+  rl-scanner:
+    uses: ./.github/workflows/rl-scanner.yml
+    with:
+      ruby-version: 3.2
+    secrets:
+      RLSECURE_LICENSE: ${{ secrets.RLSECURE_LICENSE }}
+      RLSECURE_SITE_KEY: ${{ secrets.RLSECURE_SITE_KEY }}
+      SIGNAL_HANDLER_TOKEN: ${{ secrets.SIGNAL_HANDLER_TOKEN }}
+      PRODSEC_TOOLS_USER: ${{ secrets.PRODSEC_TOOLS_USER }}
+      PRODSEC_TOOLS_TOKEN: ${{ secrets.PRODSEC_TOOLS_TOKEN }}
+      PRODSEC_TOOLS_ARN: ${{ secrets.PRODSEC_TOOLS_ARN }}
+
   publish:
     name: Publish to RubyGems
+    needs: rl-scanner
     runs-on: ubuntu-latest
     environment: release
 
