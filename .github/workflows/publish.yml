@@ -7,9 +7,6 @@ on:
         description: The branch to release from.
         required: true
         default: master
-  push:
-    branches:
-      - 'adding-reversing-labs-scanner'
 
 
 permissions:
