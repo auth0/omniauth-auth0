@@ -32,8 +32,6 @@ jobs:
   publish:
     uses: ./.github/workflows/ruby-release.yml
     needs: rl-scanner
-    runs-on: ubuntu-latest
-    environment: release
     with:
       ruby-version: 3.2
     secrets:
