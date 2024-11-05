@@ -379,7 +379,7 @@ describe OmniAuth::Auth0::JWTValidator do
       }))
     end
 
-    it 'should fail when "azp" claim doesnt match the expected aud' do
+    it 'should fail when "azp" claim doesn't match the expected aud' do
       aud = [
         client_id,
         "https://#{domain}/userinfo"
