@@ -135,6 +135,11 @@ module OmniAuth
         domain_url = URI("https://#{domain_url}") if domain_url.scheme.nil?
         domain_url.to_s
       end
+
+      # https://github.com/omniauth/omniauth-oauth2/issues/93
+      def callback_url
+        full_host + script_name + callback_path
+      end
     end
   end
 end

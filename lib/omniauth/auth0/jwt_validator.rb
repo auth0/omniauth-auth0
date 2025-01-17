@@ -86,7 +86,7 @@ module OmniAuth
           algorithm: alg,
           leeway: 30,
           verify_expiration: true,
-          verify_iss: true,
+          verify_iss: false,
           iss: @issuer,
           verify_aud: true,
           aud: @client_id,
