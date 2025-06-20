@@ -4,6 +4,7 @@ require 'base64'
 require 'uri'
 require 'securerandom'
 require 'omniauth-oauth2'
+require 'omniauth/auth0/jwt_token'
 require 'omniauth/auth0/jwt_validator'
 require 'omniauth/auth0/telemetry'
 require 'omniauth/auth0/errors'
@@ -13,6 +14,8 @@ module OmniAuth
     # Auth0 OmniAuth strategy
     class Auth0 < OmniAuth::Strategies::OAuth2
       include OmniAuth::Auth0::Telemetry
+      AUTHORIZATION_CODE_GRANT_TYPE = 'authorization_code'
+      CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 
       option :name, 'auth0'
 
@@ -28,6 +31,8 @@ module OmniAuth
         options.client_options.authorize_url = '/authorize'
         options.client_options.token_url = '/oauth/token'
         options.client_options.userinfo_url = '/userinfo'
+        setup_client_options_auth_scheme
+
         super
       end
 
@@ -100,25 +105,20 @@ module OmniAuth
       end
 
       def build_access_token
+        options.token_params.merge!(client_assertion_signing_key_token_params) if client_assertion_signing_key_auth?
         options.token_params[:headers] = { 'Auth0-Client' => telemetry_encoded }
         super
       end
 
       # Declarative override for the request phase of authentication
       def request_phase
-        if no_client_id?
-          # Do we have a client_id for this Application?
-          fail!(:missing_client_id)
-        elsif no_client_secret?
-          # Do we have a client_secret for this Application?
-          fail!(:missing_client_secret)
-        elsif no_domain?
-          # Do we have a domain for this Application?
-          fail!(:missing_domain)
-        else
-          # All checks pass, run the Oauth2 request_phase method.
-          super
-        end
+        return fail!(:missing_client_id) if no_client_id?
+        return fail!(:missing_client_secret) if no_client_secret?
+        return fail!(:missing_domain) if no_domain?
+        return fail!(:missing_client_assertion_signing_key) if no_client_assertion_signing_key?
+
+        # All checks pass, run the Oauth2 request_phase method.
+        super
       end
 
       def callback_phase
@@ -128,8 +128,30 @@ module OmniAuth
       end
 
       private
+
+      def client_assertion_signing_key_auth?
+        options['client_assertion_signing_key']
+      end
+
+      def client_assertion_signing_key_token_params
+        {
+          grant_type: AUTHORIZATION_CODE_GRANT_TYPE,
+          client_assertion_type: CLIENT_ASSERTION_TYPE,
+          client_assertion: jwt_token,
+          audience: domain_url
+        }
+      end
+
       def jwt_validator
         @jwt_validator ||= OmniAuth::Auth0::JWTValidator.new(options)
+      end
+
+      def jwt_token
+        OmniAuth::Auth0::JWTToken.new(client_id: options.client_id,
+                                      domain_url:,
+                                      client_assertion_signing_key: options.client_assertion_signing_key,
+                                      client_assertion_signing_algorithm: options.client_assertion_signing_algorithm)
+                                 .jwt_token
       end
 
       # Parse the raw user info.
@@ -154,7 +176,7 @@ module OmniAuth
 
       # Check if the options include a client_secret
       def no_client_secret?
-        ['', nil].include?(options.client_secret)
+        ['', nil].include?(options.client_secret) && !options.key?('client_assertion_signing_key')
       end
 
       # Check if the options include a domain
@@ -162,11 +184,23 @@ module OmniAuth
         ['', nil].include?(options.domain)
       end
 
+      # Check if the options include a client_assertion_signing_key
+      def no_client_assertion_signing_key?
+        options.key?('client_assertion_signing_key') && ['', nil].include?(options.client_assertion_signing_key)
+      end
+
       # Normalize a domain to a URL.
       def domain_url
         domain_url = URI(options.domain)
         domain_url = URI("https://#{domain_url}") if domain_url.scheme.nil?
         domain_url.to_s
+      end
+
+      # Setup the auth_scheme for the client options if using client assertion signing key
+      def setup_client_options_auth_scheme
+        return unless client_assertion_signing_key_auth?
+
+        options.client_options.auth_scheme = :private_key_jwt
       end
     end
   end
