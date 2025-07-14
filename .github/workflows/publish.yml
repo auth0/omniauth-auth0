@@ -8,30 +8,29 @@ on:
         required: true
         default: master
 
+
 permissions:
   contents: read
+  id-token: write # This is required for requesting the JWT
 
 jobs:
+  rl-scanner:
+    uses: ./.github/workflows/rl-scanner.yml
+    with:
+      ruby-version: 3.2
+    secrets:
+      RLSECURE_LICENSE: ${{ secrets.RLSECURE_LICENSE }}
+      RLSECURE_SITE_KEY: ${{ secrets.RLSECURE_SITE_KEY }}
+      SIGNAL_HANDLER_TOKEN: ${{ secrets.SIGNAL_HANDLER_TOKEN }}
+      PRODSEC_TOOLS_USER: ${{ secrets.PRODSEC_TOOLS_USER }}
+      PRODSEC_TOOLS_TOKEN: ${{ secrets.PRODSEC_TOOLS_TOKEN }}
+      PRODSEC_TOOLS_ARN: ${{ secrets.PRODSEC_TOOLS_ARN }}
+
   publish:
-    name: Publish to RubyGems
-    runs-on: ubuntu-latest
-    environment: release
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.inputs.branch }}
-
-      - name: Configure Ruby
-        uses: ./.github/actions/setup
-        with:
-          ruby: 3.2
-
-      - name: Publish to RubyGems
-        run: |
-          gem build *.gemspec
-          gem push *.gem
-        env:
-          GEM_HOST_API_KEY: ${{secrets.RUBYGEMS_AUTH_TOKEN}}
+    uses: ./.github/workflows/ruby-release.yml
+    needs: rl-scanner
+    with:
+      ruby-version: 3.2
+    secrets:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      rubygems-token: ${{ secrets.RUBYGEMS_AUTH_TOKEN }}
