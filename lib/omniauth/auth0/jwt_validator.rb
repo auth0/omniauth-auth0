@@ -272,10 +272,10 @@ module OmniAuth
         if validate_as_id
           org_id = id_token['org_id']
           if !org_id || !org_id.is_a?(String)
-            raise OmniAuth::Auth0::TokenValidationError, 
+            raise OmniAuth::Auth0::TokenValidationError,
                   'Organization Id (org_id) claim must be a string present in the ID token'
           elsif org_id != organization
-            raise OmniAuth::Auth0::TokenValidationError, 
+            raise OmniAuth::Auth0::TokenValidationError,
                   "Organization Id (org_id) claim value mismatch in the ID token; expected '#{organization}', found '#{org_id}'"
           end
         else
