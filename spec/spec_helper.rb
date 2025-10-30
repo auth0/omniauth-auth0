@@ -16,8 +16,12 @@ require 'webmock/rspec'
 require 'omniauth'
 require 'omniauth-auth0'
 require 'sinatra'
+require 'ostruct'
 
 WebMock.disable_net_connect!
+
+Rack::Test::DEFAULT_HOST = 'localhost'
+Rack::Test::DEFAULT_METHODS = %w[GET POST PUT PATCH DELETE OPTIONS HEAD]
 
 RSpec.configure do |config|
   config.include WebMock::API
@@ -46,6 +50,12 @@ RSpec.configure do |config|
         set :session_store, Rack::Session::Cookie
       end
 
+      # Allow all HTTP methods for testing
+      options '*' do
+        response.headers['Allow'] = 'HEAD,GET,POST,PUT,PATCH,DELETE,OPTIONS'
+        200
+      end
+
       use OmniAuth::Builder do
         provider :auth0, client_id, secret, domain, options
       end
@@ -58,3 +68,27 @@ RSpec.configure do |config|
 end
 
 OmniAuth.config.logger = Logger.new('/dev/null')
+OmniAuth.config.test_mode = true
+OmniAuth.config.allowed_request_methods = [:get, :post]
+OmniAuth.config.mock_auth[:auth0] = OmniAuth::AuthHash.new({
+  provider: 'auth0',
+  uid: 'user identifier',
+  info: {
+    name: 'John',
+    nickname: 'J',
+    image: 'some picture url',
+    email: 'mail@mail.com'
+  },
+  credentials: {
+    token: 'access token',
+    expires: true,
+    expires_at: Time.now.to_i + 2000,
+    id_token: 'id_token',
+    refresh_token: 'refresh token'
+  },
+  extra: {
+    raw_info: {
+      email_verified: true
+    }
+  }
+})
