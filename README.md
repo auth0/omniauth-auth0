@@ -5,6 +5,7 @@
 [![codecov](https://codecov.io/gh/auth0/omniauth-auth0/branch/master/graph/badge.svg)](https://codecov.io/gh/auth0/omniauth-auth0)
 [![Gem Version](https://badge.fury.io/rb/omniauth-auth0.svg)](https://badge.fury.io/rb/omniauth-auth0)
 [![MIT licensed](https://img.shields.io/dub/l/vibe-d.svg?style=flat)](https://github.com/auth0/omniauth-auth0/blob/master/LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/auth0/omniauth-auth0)
 
 <div>
 📚 <a href="#documentation">Documentation</a> - 🚀 <a href="#getting-started">Getting started</a> - 💻 <a href="https://www.rubydoc.info/gems/omniauth-auth0">API reference</a> - 💬 <a href="#feedback">Feedback</a>
@@ -53,6 +54,8 @@ Adding the SDK to your Rails app requires a few steps:
 
 Create the file `./config/auth0.yml` within your application directory with the following content:
 
+### For client secret authentication
+
 ```yml
 development:
   auth0_domain: <YOUR_DOMAIN>
@@ -60,9 +63,24 @@ development:
   auth0_client_secret: <YOUR AUTH0 CLIENT SECRET>
 ```
 
+#### For client assertion signing key authentication
+
+```yml
+development:
+  auth0_domain: <YOUR_DOMAIN>
+  auth0_client_id: <YOUR_CLIENT_ID>
+  auth0_client_assertion_signing_key: <YOUR AUTH0 CLIENT ASSERTION SIGNING PRIVATE KEY>
+  auth0_client_assertion_signing_algorithm: <YOUR AUTH0 CLIENT ASSERTION SIGNING ALGORITHM>
+```
+**Note**: you must upload the corresponding public key to your Auth0 tenant, so that Auth0 is able to verify the JWT signature.
+
+client_assertion_signing_algorithm is optional and defaults to RS256.
+
 ### Create the initializer
 
 Create a new Ruby file in `./config/initializers/auth0.rb` to configure the OmniAuth middleware:
+
+### For client secret authentication
 
 ```ruby
 AUTH0_CONFIG = Rails.application.config_for(:auth0)
@@ -80,6 +98,29 @@ Rails.application.config.middleware.use OmniAuth::Builder do
   )
 end
 ```
+
+#### For client assertion signing key authentication
+
+```ruby
+AUTH0_CONFIG = Rails.application.config_for(:auth0)
+
+Rails.application.config.middleware.use OmniAuth::Builder do
+  provider(
+    :auth0,
+    AUTH0_CONFIG['auth0_client_id'],
+    nil,
+    AUTH0_CONFIG['auth0_domain'],
+    callback_path: '/auth/auth0/callback',
+    authorize_params: {
+      scope: 'openid profile'
+    },
+    client_assertion_signing_key: OpenSSL::PKey::RSA.new(AUTH0_CONFIG[:auth0_client_assertion_signing_key]),
+    client_assertion_signing_algorithm: AUTH0_CONFIG[:auth0_client_assertion_signing_algorithm]
+  )
+end
+```
+
+**Note**: The client_assertion_signing_key must be provided as a PKey object.
 
 ### Create the callback controller
 
