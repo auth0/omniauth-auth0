@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     omniauth-auth0 (3.2.0)
-      jwt (~> 2)
+      jwt (>= 2, < 4)
       omniauth (~> 2)
       omniauth-oauth2 (~> 1)
 
@@ -55,7 +55,7 @@ GEM
       logger
     io-console (0.8.2)
     json (2.19.5)
-    jwt (2.10.2)
+    jwt (2.10.3)
       base64
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
