@@ -491,6 +491,11 @@ describe OmniAuth::Strategies::Auth0 do
           JWT.encode payload, rsa_private_key, 'RS256', kid: valid_jwks_kid
         end
 
+        # Header of the client assertion captured by the last stub_auth request.
+        def client_assertion_headers
+          JWT.decode(@client_assertion, nil, false)[1]
+        end
+
         def jwt_token?(token)
           JWT.decode(token, nil, false)
           true
@@ -528,6 +533,7 @@ describe OmniAuth::Strategies::Auth0 do
             .with do |request|
               params = URI.decode_www_form(request.body).to_h
               token = params['client_assertion']
+              @client_assertion = token
 
               request.headers['Auth0-Client'] == telemetry_value &&
                 params['grant_type'] == described_class::AUTHORIZATION_CODE_GRANT_TYPE &&
@@ -550,12 +556,13 @@ describe OmniAuth::Strategies::Auth0 do
             )
         end
 
-        def stub_jwt_token(algorithm: client_assertion_signing_algorithm)
+        def stub_jwt_token(algorithm: client_assertion_signing_algorithm, key_id: nil)
           allow(OmniAuth::Auth0::JWTToken).to receive(:new)
             .with(client_id,
                   domain_url,
                   client_assertion_signing_key,
-                  algorithm)
+                  algorithm,
+                  client_assertion_signing_key_id: key_id)
             .and_return(instance_double(OmniAuth::Auth0::JWTToken, jwt_token: jwt_token))
         end
 
@@ -580,6 +587,41 @@ describe OmniAuth::Strategies::Auth0 do
           end
 
           it_behaves_like 'basic oauth callback assertions'
+        end
+
+        context 'basic oauth w/client assertion signing key id' do
+          let(:client_assertion_signing_key_id) { 'CLIENT_ASSERTION_SIGNING_KEY_ID' }
+
+          before do
+            @app = make_application(client_secret: nil,
+                                    client_assertion_signing_key: client_assertion_signing_key,
+                                    client_assertion_signing_key_id: client_assertion_signing_key_id)
+            stub_jwt_token(algorithm: nil, key_id: client_assertion_signing_key_id)
+            stub_auth(oauth_response)
+            stub_userinfo(basic_user_info)
+            trigger_callback
+          end
+
+          it_behaves_like 'basic oauth callback assertions'
+        end
+
+        context 'basic oauth w/client assertion signing key id, without stubbing jwt token' do
+          let(:client_assertion_signing_key_id) { 'CLIENT_ASSERTION_SIGNING_KEY_ID' }
+
+          before do
+            @app = make_application(client_secret: nil,
+                                    client_assertion_signing_key: client_assertion_signing_key,
+                                    client_assertion_signing_key_id: client_assertion_signing_key_id)
+            stub_auth(oauth_response, stubbed_jwt_token: false)
+            stub_userinfo(basic_user_info)
+            trigger_callback
+          end
+
+          it_behaves_like 'basic oauth callback assertions'
+
+          it 'sends the key id as the kid header of the client assertion' do
+            expect(client_assertion_headers['kid']).to eq(client_assertion_signing_key_id)
+          end
         end
 
         context 'basic oauth w/refresh token' do
