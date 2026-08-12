@@ -150,7 +150,8 @@ module OmniAuth
         OmniAuth::Auth0::JWTToken.new(options.client_id,
                                       domain_url,
                                       options.client_assertion_signing_key,
-                                      options.client_assertion_signing_algorithm)
+                                      options.client_assertion_signing_algorithm,
+                                      client_assertion_signing_key_id: options.client_assertion_signing_key_id)
                                  .jwt_token
       end
 

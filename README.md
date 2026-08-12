@@ -71,10 +71,16 @@ development:
   auth0_client_id: <YOUR_CLIENT_ID>
   auth0_client_assertion_signing_key: <YOUR AUTH0 CLIENT ASSERTION SIGNING PRIVATE KEY>
   auth0_client_assertion_signing_algorithm: <YOUR AUTH0 CLIENT ASSERTION SIGNING ALGORITHM>
+  auth0_client_assertion_signing_key_id: <YOUR AUTH0 CLIENT ASSERTION SIGNING KEY ID>
 ```
 **Note**: you must upload the corresponding public key to your Auth0 tenant, so that Auth0 is able to verify the JWT signature.
 
 client_assertion_signing_algorithm is optional and defaults to RS256.
+
+client_assertion_signing_key_id is optional. When set, it is sent as the `kid` header of the
+client assertion JWT, which lets Auth0 pick the matching public key when your tenant has more
+than one credential registered — for example while rotating keys. Use the key ID that Auth0
+assigned to the uploaded public key. When it is not set, no `kid` header is sent.
 
 ### Create the initializer
 
@@ -115,7 +121,8 @@ Rails.application.config.middleware.use OmniAuth::Builder do
       scope: 'openid profile'
     },
     client_assertion_signing_key: OpenSSL::PKey::RSA.new(AUTH0_CONFIG[:auth0_client_assertion_signing_key]),
-    client_assertion_signing_algorithm: AUTH0_CONFIG[:auth0_client_assertion_signing_algorithm]
+    client_assertion_signing_algorithm: AUTH0_CONFIG[:auth0_client_assertion_signing_algorithm],
+    client_assertion_signing_key_id: AUTH0_CONFIG[:auth0_client_assertion_signing_key_id]
   )
 end
 ```
